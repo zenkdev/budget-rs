@@ -6,12 +6,31 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta content="Vault Budgeting System" name="description" />
   <title>Vault Budgeting System</title>
-  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap"
+  <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap&family=Material+Symbols+Outlined"
     rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-primary: #19e619;
+      --color-background-light: #f6f8f6;
+      --color-background-dark: #112111;
+      --font-display: "Space Grotesk", sans-serif;
+      --border-radius-DEFAULT: 0.125rem;
+      --border-radius-lg: 0.25rem;
+      --border-radius-xl: 0.5rem;
+      --border-radius-full: 0.75rem;
+    }
+    @layer utilities {
+      body {
+        background-color: #0d1e0d;
+        background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 1px, transparent 1px, transparent 2px);
+      }
+    }
+  </style>
   <style>
     .text-glow {
       text-shadow: 0 0 5px currentColor, 0 0 7px currentColor;
@@ -28,6 +47,17 @@
           rgba(17, 34, 17, 0.25) 50%);
       background-size: 100% 4px;
       opacity: 0.3;
+    }
+
+    .scanline::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0, 255, 0, 0.05) 1px, rgba(0, 255, 0, 0.05) 2px);
     }
 
     .blinking-cursor {
@@ -51,50 +81,10 @@
         'GRAD' 0,
         'opsz' 24
     }
-  </style>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#19e619",
-            "background-light": "#f6f8f6",
-            "background-dark": "#112111",
-          },
-          fontFamily: {
-            "display": ["Space Grotesk"]
-          },
-          borderRadius: {
-            "DEFAULT": "0.125rem",
-            "lg": "0.25rem",
-            "xl": "0.5rem",
-            "full": "0.75rem"
-          },
-        },
-      },
-    }
-  </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-    body {
-      background-color: #0d1e0d;
-      background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 1px, transparent 1px, transparent 2px);
-    }
+
     body:has(dialog[open]) {
       overflow: hidden;
     }
-    .scanline::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0, 255, 0, 0.05) 1px, rgba(0, 255, 0, 0.05) 2px);
-    }
-  }
   </style>
 </head>
 

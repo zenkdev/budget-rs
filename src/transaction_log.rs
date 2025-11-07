@@ -3,9 +3,9 @@ use yew::prelude::*;
 #[function_component]
 pub fn TransactionLog() -> Html {
     html! {
-    <section>
+    <section class="flex flex-col">
         <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 text-glow">{"// TRANSACTION LOGS //"}</h3>
-        <div class="p-4 border border-primary/30 rounded h-full overflow-x-auto">
+        <div class="p-4 border border-primary/30 rounded flex-1 overflow-x-auto">
             <table class="w-full text-left text-sm">
                 <thead>
                     <tr>
