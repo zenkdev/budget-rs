@@ -58,7 +58,7 @@ jobs:
       - name: Run trunk build
         run: RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build --public-url "${{ steps.setup_pages.outputs.base_path }}" --release
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: "./dist"
 
