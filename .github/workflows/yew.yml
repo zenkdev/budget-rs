@@ -48,7 +48,7 @@ jobs:
           # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install Trunk
-        uses: jetli/trunk-action@v0.4.0
+        uses: jetli/trunk-action@v0.5.1
         with:
           # Optional version of trunk to install(eg. 'v0.16.0', 'latest')
           version: "latest"
