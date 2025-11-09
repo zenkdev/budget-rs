@@ -2,10 +2,10 @@ mod add_expense;
 mod analysis;
 mod app;
 mod commands;
-mod footer;
-mod header;
-mod manage_budgets;
+mod components;
+mod manage_limits;
 mod overview;
+mod state;
 mod transaction_log;
 mod view_reports;
 

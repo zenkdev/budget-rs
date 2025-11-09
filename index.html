@@ -60,7 +60,13 @@
       background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0, 255, 0, 0.05) 1px, rgba(0, 255, 0, 0.05) 2px);
     }
 
+    input:focus {
+      caret-shape: block;
+      caret-color: #19e619;
+    }
+
     .blinking-cursor {
+      color: #19e619;
       animation: blink 1s step-end infinite;
     }
 
@@ -68,10 +74,6 @@
       50% {
         opacity: 0;
       }
-    }
-
-    input:focus {
-      caret-color: #19e619;
     }
 
     .material-symbols-outlined {

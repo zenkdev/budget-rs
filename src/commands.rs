@@ -4,7 +4,7 @@ use yew::prelude::*;
 pub struct CommandsProps {
     pub on_add_expense_click: Callback<MouseEvent>,
     pub on_view_reports_click: Callback<MouseEvent>,
-    pub on_manage_budgets_click: Callback<MouseEvent>,
+    pub on_manage_limits_click: Callback<MouseEvent>,
 }
 
 #[function_component]
@@ -12,7 +12,7 @@ pub fn Commands(props: &CommandsProps) -> Html {
     let CommandsProps {
         on_add_expense_click,
         on_view_reports_click,
-        on_manage_budgets_click,
+        on_manage_limits_click,
     } = props;
 
     html! {
@@ -25,8 +25,8 @@ pub fn Commands(props: &CommandsProps) -> Html {
             <button class="flex-1 text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200" onclick={on_view_reports_click}>
                 <span class="font-bold">{">_ VIEW REPORTS"}</span>
             </button>
-            <button class="flex-1 text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200" onclick={on_manage_budgets_click}>
-                <span class="font-bold">{">_ MANAGE BUDGETS"}</span>
+            <button class="flex-1 text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200" onclick={on_manage_limits_click}>
+                <span class="font-bold">{">_ MANAGE LIMITS"}</span>
             </button>
         </div>
     </section>
