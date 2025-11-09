@@ -6,12 +6,37 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta content="Vault Budgeting System" name="description" />
   <title>Vault Budgeting System</title>
+  <!--
   <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  -->
   <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap&family=Material+Symbols+Outlined"
-    rel="stylesheet" />
+  <link data-trunk rel="copy-dir" href="fonts" />
+  <style>
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(./fonts/SpaceGrotesk-Regular.ttf) format("truetype");
+    }
+
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(./fonts/SpaceGrotesk-Medium.ttf) format("truetype");
+    }
+
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url(./fonts/SpaceGrotesk-Bold.ttf) format("truetype");
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style type="text/tailwindcss">
     @theme {
