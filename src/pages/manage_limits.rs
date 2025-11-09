@@ -1,12 +1,12 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
-use yew::prelude::*;
 
 #[derive(PartialEq, Properties, Clone)]
 pub struct ManageLimitsProps {
     pub open: bool,
     pub on_close: Callback<MouseEvent>,
+    pub transactions: Vec<Transaction>,
     pub categories: Vec<Category>,
     pub monthly_limit: f64,
     pub on_submit: Callback<(f64, Vec<Category>)>,
@@ -17,6 +17,7 @@ pub fn ManageLimits(props: &ManageLimitsProps) -> Html {
     let ManageLimitsProps {
         open,
         on_close,
+        transactions,
         categories,
         monthly_limit,
         on_submit,
@@ -41,6 +42,7 @@ pub fn ManageLimits(props: &ManageLimitsProps) -> Html {
                             </div>
                         </div>
                         <ManageLimitsForm
+                            transactions={transactions.clone()}
                             categories={categories.clone()}
                             monthly_limit={monthly_limit.clone()}
                             on_submit={on_submit.clone()}
@@ -99,6 +101,7 @@ impl Reducible for FormState {
 
 #[derive(PartialEq, Properties, Clone)]
 struct ManageLimitsFormProps {
+    pub transactions: Vec<Transaction>,
     pub categories: Vec<Category>,
     pub monthly_limit: f64,
     pub on_submit: Callback<(f64, Vec<Category>)>,
@@ -107,6 +110,7 @@ struct ManageLimitsFormProps {
 #[function_component]
 fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
     let ManageLimitsFormProps {
+        transactions,
         categories,
         monthly_limit,
         on_submit,
@@ -157,14 +161,11 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
             <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
                 <label class="flex flex-col min-w-40 flex-1">
                     <p class="text-primary text-base font-medium leading-normal pb-2">{"> OVERALL MONTHLY LIMIT:"}</p>
-                    <div class="relative">
-                        <input
-                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-14 placeholder:text-[#93c893] p-[15px] text-base font-normal leading-normal pr-4"
-                            value={fmt_amount(state.monthly_limit)}
-                            onchange={on_change_monthly_limit}
-                        />
-                        <span class="blinking-cursor absolute right-3 top-1/2 -translate-y-1/2 text-primary font-bold">{"_"}</span>
-                    </div>
+                    <input
+                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-14 placeholder:text-[#93c893] p-[15px] text-base font-normal leading-normal pr-4"
+                        value={fmt_amount(state.monthly_limit)}
+                        onchange={on_change_monthly_limit}
+                    />
                 </label>
             </div>
             // <!-- Category Limits Table -->
@@ -179,8 +180,8 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                             </tr>
                         </thead>
                         <tbody>
-                            {for state.categories.iter().cloned().map(|category| html! {
-                                <CategoryEdit category={category} on_edit={on_edit_category.clone()} />
+                            {for state.categories.iter().map(|category| html! {
+                                <CategoryEdit category={category.clone()} on_edit={on_edit_category.clone()} spent={get_category_spent(category.clone().id, transactions)} />
                             })}
                         </tbody>
                     </table>
@@ -209,11 +210,16 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 struct CategoryEditProps {
     pub category: Category,
     pub on_edit: Callback<(usize, String, f64)>,
+    pub spent: f64,
 }
 
 #[function_component]
 fn CategoryEdit(props: &CategoryEditProps) -> Html {
-    let CategoryEditProps { category, on_edit } = props;
+    let CategoryEditProps {
+        category,
+        on_edit,
+        spent,
+    } = props;
 
     let id = category.id;
 
@@ -227,19 +233,33 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
         }
     };
 
+    let percent = if category.limit > 0.0 {
+        (spent / category.limit * 100.0) as i32
+    } else {
+        0
+    };
+
+    let progress = if percent > 100 {
+        10
+    } else {
+        (percent as f64 / 10.0).ceil() as i32
+    };
+
     html! {
-    <tr class="border-t border-t-[#346534]">
-        <td class="h-[72px] px-4 py-2 text-[#93c893] text-sm font-normal leading-normal">{category.name.clone()}</td>
-        <td class="h-[72px] px-4 py-2">
-            <input
-                class="form-input w-full min-w-0 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
-                value={fmt_amount(category.limit)}
-                onchange={on_change}
-            />
-        </td>
-        <td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
-            <p class="text-primary text-sm font-medium leading-normal">{"[█████████░] 90%"}</p>
-        </td>
-    </tr>
+        <tr class="border-t border-t-[#346534]">
+            <td class="h-[72px] px-4 py-2 text-[#93c893] text-sm font-normal leading-normal">{category.name.clone()}</td>
+            <td class="h-[72px] px-4 py-2">
+                <input
+                    class="form-input w-full min-w-0 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
+                    value={fmt_amount(category.limit)}
+                    onchange={on_change}
+                />
+            </td>
+            <td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+                <p class="text-primary text-sm font-medium leading-normal">
+                    { format!("[{}{}] {}%", pad_right("", progress as usize, '█'), pad_right("", (10 - progress) as usize, '░'), percent) }
+                </p>
+            </td>
+        </tr>
     }
 }

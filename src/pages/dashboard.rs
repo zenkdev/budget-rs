@@ -1,10 +1,10 @@
-use crate::analysis::Analysis;
-use crate::overview::Overview;
 use crate::prelude::*;
-use crate::transaction_log::TransactionLog;
 
 #[derive(PartialEq, Properties)]
 pub struct DashboardProps {
+    pub transactions: Vec<Transaction>,
+    pub categories: Vec<Category>,
+    pub monthly_limit: f64,
     pub open_add_expense: Callback<MouseEvent>,
     pub open_view_reports: Callback<MouseEvent>,
     pub open_manage_limits: Callback<MouseEvent>,
@@ -13,6 +13,9 @@ pub struct DashboardProps {
 #[function_component]
 pub fn Dashboard(props: &DashboardProps) -> Html {
     let DashboardProps {
+        transactions,
+        categories,
+        monthly_limit,
         open_add_expense,
         open_view_reports,
         open_manage_limits,
@@ -23,10 +26,16 @@ pub fn Dashboard(props: &DashboardProps) -> Html {
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                     <Header/>
                     <main class="flex flex-col gap-4 mt-4">
-                        <Overview/>
+                        <MonthlyOverview
+                            transactions={transactions.clone()}
+                            monthly_limit={monthly_limit}
+                        />
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <Analysis/>
-                            <TransactionLog/>
+                            <CategoryAnalysis
+                                transactions={transactions.clone()}
+                                categories={categories.clone()}
+                            />
+                            <TransactionLogs transactions={transactions.clone()}/>
                         </div>
                         <Commands
                             on_add_expense_click={open_add_expense}

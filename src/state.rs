@@ -35,8 +35,66 @@ impl Eq for State {}
 
 impl Default for State {
     fn default() -> Self {
+        let now = Utc::now();
         Self {
-            transactions: vec![],
+            transactions: vec![
+                Transaction {
+                    amount: 45.50,
+                    date: now,
+                    description: "Super-Duper Mart Rations".to_string(),
+                    category: 1,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 120.00,
+                    date: now,
+                    description: "Hydroponic Vegetable Seeds".to_string(),
+                    category: 2,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 75.00,
+                    date: now,
+                    description: "Gas for Power Generator".to_string(),
+                    category: 2,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 30.00,
+                    date: now,
+                    description: "Red Rocket Fuel".to_string(),
+                    category: 3,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 80.00,
+                    date: now,
+                    description: "Repair of Shelter Door Lock".to_string(),
+                    category: 5,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 200.00,
+                    date: now,
+                    description: "Purchase of 10mm Rounds".to_string(),
+                    category: 6,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 60.00,
+                    date: now,
+                    description: "Medicine and Stimpaks".to_string(),
+                    category: 4,
+                    notes: "".to_string(),
+                },
+                Transaction {
+                    amount: 150.00,
+                    date: now,
+                    description: "Water Chip Replacement".to_string(),
+                    category: 2,
+                    notes: "".to_string(),
+                },
+            ],
             categories: vec![
                 Category {
                     id: 1,

@@ -71,6 +71,9 @@ pub fn App() -> Html {
         <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
             <div class="scanlines"></div>
             <Dashboard
+                transactions={state.transactions.clone()}
+                categories={state.categories.clone()}
+                monthly_limit={state.monthly_limit}
                 open_add_expense={open_add_expense}
                 open_view_reports={open_view_reports}
                 open_manage_limits={open_manage_limits}
@@ -85,6 +88,7 @@ pub fn App() -> Html {
             <ManageLimits
                 open={*manage_limits_open}
                 on_close={on_close_manage_limits}
+                transactions={state.transactions.clone()}
                 categories={state.categories.clone()}
                 monthly_limit={state.monthly_limit}
                 on_submit={on_submit_limits}

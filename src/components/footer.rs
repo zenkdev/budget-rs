@@ -22,14 +22,14 @@ pub fn Footer() -> Html {
     }
 
     html! {
-    <footer class="mt-8 border-t border-solid border-primary/30 px-10 py-3 text-sm text-primary/80">
-        <div class="flex justify-between items-center">
-            <span>{"STATUS: ONLINE | USER: VAULT_DWELLER_101"}</span>
-            <div class="flex items-center gap-2">
-                <span>{time.as_str()}</span>
-                <span class="animate-pulse">{"█"}</span>
+        <footer class="mt-8 border-t border-solid border-primary/30 px-10 py-3 text-sm text-primary/80">
+            <div class="flex justify-between items-center">
+                <span>{ "STATUS: ONLINE | USER: VAULT_DWELLER_101" }</span>
+                <div class="flex items-center gap-2">
+                    <span>{ time.as_str() }</span>
+                    <span class="animate-pulse">{ "█" }</span>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
     }
 }
