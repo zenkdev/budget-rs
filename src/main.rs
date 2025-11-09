@@ -1,13 +1,12 @@
-mod add_expense;
 mod analysis;
 mod app;
-mod commands;
 mod components;
-mod manage_limits;
+mod helpers;
 mod overview;
+mod pages;
+mod prelude;
 mod state;
 mod transaction_log;
-mod view_reports;
 
 use app::App;
 use tracing_subscriber::{filter::Targets, prelude::*};

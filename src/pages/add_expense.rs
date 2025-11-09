@@ -1,40 +1,7 @@
-use crate::state::Category;
+use crate::prelude::*;
 use chrono::{DateTime, Utc};
-use numfmt::{Formatter, Precision};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
-use web_sys::{HtmlDialogElement, HtmlInputElement};
-use yew::prelude::*;
-
-fn fmt_currency(amount: f64) -> String {
-    let f = Formatter::new() // start with blank representation
-        .separator(',')
-        .unwrap()
-        .prefix("$")
-        .unwrap()
-        .precision(Precision::Decimals(2));
-    f.fmt_string(amount)
-}
-
-fn target_input_value_string(e: &Event) -> String {
-    let input: HtmlInputElement = e.target_unchecked_into();
-    input.value()
-}
-
-fn target_input_value_f64(e: &Event) -> f64 {
-    let input: HtmlInputElement = e.target_unchecked_into();
-    input
-        .value()
-        .replace("$", "")
-        .replace(",", "")
-        .parse::<f64>()
-        .unwrap_or(0.0)
-}
-
-fn target_input_value_usize(e: &Event) -> usize {
-    let input: HtmlInputElement = e.target_unchecked_into();
-    input.value().parse::<usize>().unwrap_or(0)
-}
 
 #[derive(PartialEq, Properties)]
 pub struct AddExpenseProps {
@@ -52,49 +19,26 @@ pub fn AddExpense(props: &AddExpenseProps) -> Html {
         categories,
         on_submit,
     } = props;
-    let dialog_ref = use_node_ref();
-    let prev = use_mut_ref(|| *open);
-
-    {
-        let dialog_ref = dialog_ref.clone();
-        let open = open.clone();
-
-        use_effect_with((dialog_ref, open, prev), |(dialog_ref, open, prev)| {
-            let dialog = dialog_ref
-                .cast::<HtmlDialogElement>()
-                .expect("dialog_ref not attached to dialog element");
-
-            tracing::info!("open: {}, prev: {}", *open, *prev.borrow_mut());
-            if *prev.borrow_mut() != *open {
-                *prev.borrow_mut() = *open;
-                if *open {
-                    dialog.show_modal().unwrap();
-                } else {
-                    dialog.close();
-                }
-            }
-        });
-    }
 
     html! {
-    <dialog ref={dialog_ref} class="bg-background-dark font-display min-h-screen w-full p-4 sm:p-6 md:p-8 text-primary">
-        { if *open {
-            html! {
+        <Dialog open={open}>
             <div class="layout-container flex h-full grow flex-col">
-                <div class="flex flex-1 justify-center py-5">
-                    <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
-                        <div class="flex flex-wrap justify-center gap-3 p-4">
-                            <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">{"[ < NEW EXPENSE LOG > ]"}</p>
+                    <div class="flex flex-1 justify-center py-5">
+                        <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
+                            <div class="flex flex-wrap justify-center gap-3 p-4">
+                                <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                                    { "[ < NEW EXPENSE LOG > ]" }
+                                </p>
+                            </div>
+                            <AddExpenseForm
+                                categories={categories.clone()}
+                                on_submit={on_submit.clone()}
+                                on_cancel={on_close.clone()}
+                            />
                         </div>
-                        <AddExpenseForm categories={categories.clone()} on_submit={on_submit.clone()} on_cancel={on_close.clone()} />
                     </div>
                 </div>
-            </div>
-            }
-        } else {
-            html! {}
-        }}
-    </dialog>
+        </Dialog>
     }
 }
 
@@ -199,7 +143,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         let state = state.clone();
 
         Callback::from(move |e: Event| {
-            let value = target_input_value_f64(&e);
+            let value = target_input_value_amount(&e);
             tracing::info!("on_change_amount: {}", value);
             state.dispatch(FormAction::EditAmount(value));
         })
@@ -257,7 +201,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
                         id="amount"
                         name="amount"
                         // placeholder="&gt; $ [___]"
-                        value={fmt_currency(state.amount)}
+                        value={fmt_amount(state.amount)}
                         onchange={on_change_amount}
                     />
                 </div>

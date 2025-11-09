@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use gloo::storage::{LocalStorage, Storage};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 use yew::prelude::*;
@@ -73,8 +74,6 @@ impl Default for State {
     }
 }
 
-pub const KEY: &str = "@budget-rs/app-state";
-
 pub enum Action {
     AddTransaction(Transaction),
     EditLimits((f64, Vec<Category>)),
@@ -106,12 +105,23 @@ impl Reducible for State {
     }
 }
 
-// fn use_app_state() {
-//     let state = use_reducer(|| State {
-//         entries: LocalStorage::get(KEY).unwrap_or_else(|_| vec![]),
-//     });
+const KEY: &str = "@budget-rs/app-state";
 
-//     use_effect_with(state.clone(), |state| {
-//         LocalStorage::set(KEY, &state.clone()).expect("failed to set");
-//     });
-// }
+#[hook]
+pub fn use_app_state() -> UseReducerHandle<State> {
+    let state = use_reducer(|| LocalStorage::get(KEY).unwrap_or_else(|_| State::default()));
+
+    use_effect_with(state.clone(), |state| {
+        LocalStorage::set(
+            KEY,
+            State {
+                transactions: state.transactions.clone(),
+                categories: state.categories.clone(),
+                monthly_limit: state.monthly_limit,
+            },
+        )
+        .expect("failed to set");
+    });
+
+    state
+}
