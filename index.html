@@ -6,12 +6,10 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta content="Vault Budgeting System" name="description" />
   <title>Vault Budgeting System</title>
-  <!--
-  <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect" />
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  -->
-  <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect" />
   <link data-trunk rel="copy-dir" href="fonts" />
+  <link rel="preload" href="fonts/SpaceGrotesk-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="fonts/SpaceGrotesk-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="fonts/SpaceGrotesk-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <style>
     @font-face {
       font-family: "Space Grotesk";
@@ -37,25 +35,7 @@
       src: url(./fonts/SpaceGrotesk-Bold.ttf) format("truetype");
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <style type="text/tailwindcss">
-    @theme {
-      --color-primary: #19e619;
-      --color-background-light: #f6f8f6;
-      --color-background-dark: #112111;
-      --font-display: "Space Grotesk", sans-serif;
-      --border-radius-DEFAULT: 0.125rem;
-      --border-radius-lg: 0.25rem;
-      --border-radius-xl: 0.5rem;
-      --border-radius-full: 0.75rem;
-    }
-    @layer utilities {
-      body {
-        background-color: #0d1e0d;
-        background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 1px, transparent 1px, transparent 2px);
-      }
-    }
-  </style>
+  <link data-trunk rel="tailwind-css" href="src/tailwind.css" />
   <style>
     .text-glow {
       text-shadow: 0 0 5px currentColor, 0 0 7px currentColor;
