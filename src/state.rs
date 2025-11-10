@@ -183,3 +183,5 @@ pub fn use_app_state() -> UseReducerHandle<State> {
 
     state
 }
+
+pub type DispatchState = Callback<Action>;

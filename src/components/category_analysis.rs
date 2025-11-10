@@ -1,20 +1,13 @@
 use crate::prelude::*;
 
-#[derive(PartialEq, Properties)]
-pub struct CategoryAnalysisProps {
-    pub transactions: Vec<Transaction>,
-    pub categories: Vec<Category>,
-}
-
 #[function_component]
-pub fn CategoryAnalysis(props: &CategoryAnalysisProps) -> Html {
-    let CategoryAnalysisProps {
-        transactions,
-        categories,
-    } = props;
+pub fn CategoryAnalysis() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+    let categories = state.categories;
 
     let mut max_length = 0;
-    for cat in categories {
+    for cat in &categories {
         if cat.name.len() > max_length {
             max_length = cat.name.len();
         }
@@ -27,13 +20,13 @@ pub fn CategoryAnalysis(props: &CategoryAnalysisProps) -> Html {
                 { "// CATEGORY ANALYSIS //" }
             </h3>
             <div class="p-4 border border-primary/30 rounded flex-1">
-                { for categories.iter().cloned().map(|cat| html!{
+                { for categories.iter().map(|cat| html!{
                     <div class="flex justify-between gap-x-6 py-2">
                         <p class="text-primary/90 text-sm font-normal leading-normal">
                             { format!("> {}", pad_right(&cat.name, max_length, '.')) }
                         </p>
                         <p class="text-primary text-sm font-normal leading-normal text-right">
-                            { fmt_amount(get_category_spent(cat.id, transactions)) }
+                            { fmt_amount(get_category_spent(cat.id, &transactions)) }
                         </p>
                     </div>
                 })}

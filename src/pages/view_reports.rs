@@ -1,25 +1,14 @@
 use crate::prelude::*;
 
-#[derive(PartialEq, Properties)]
-pub struct ViewReportsProps {
-    pub open: bool,
-    pub on_close: Callback<MouseEvent>,
-}
-
 #[function_component]
-pub fn ViewReports(props: &ViewReportsProps) -> Html {
-    let ViewReportsProps { open, on_close } = props;
-
+pub fn ViewReports() -> Html {
     html! {
-    <Dialog open={open}>
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                     // <!-- Back Button -->
                     <div class="flex px-4 py-3 justify-start">
-                        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-10 px-4 bg-transparent text-[#93c893] hover:text-primary text-sm font-bold leading-normal tracking-[0.015em]" onclick={on_close}>
-                            <span class="truncate">{"[ < BACK ]"}</span>
-                        </button>
+                        <BackButton />
                     </div>
                     // <!-- Page Heading -->
                     <div class="flex flex-wrap justify-between gap-3 p-4">
@@ -145,6 +134,5 @@ pub fn ViewReports(props: &ViewReportsProps) -> Html {
                 </div>
             </div>
         </div>
-    </Dialog>
     }
 }

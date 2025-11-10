@@ -1,19 +1,20 @@
-use yew::prelude::*;
-
-#[derive(PartialEq, Properties)]
-pub struct CommandsProps {
-    pub on_add_expense_click: Callback<MouseEvent>,
-    pub on_view_reports_click: Callback<MouseEvent>,
-    pub on_manage_limits_click: Callback<MouseEvent>,
-}
+use crate::prelude::*;
 
 #[function_component]
-pub fn Commands(props: &CommandsProps) -> Html {
-    let CommandsProps {
-        on_add_expense_click,
-        on_view_reports_click,
-        on_manage_limits_click,
-    } = props;
+pub fn Commands() -> Html {
+    let navigator = use_navigator().unwrap();
+    let on_add_expense_click = {
+        let navigator = navigator.clone();
+        Callback::from(move |_| navigator.push(&Route::AddExpense))
+    };
+    let on_view_reports_click = {
+        let navigator = navigator.clone();
+        Callback::from(move |_| navigator.push(&Route::ViewReports))
+    };
+    let on_manage_limits_click = {
+        let navigator = navigator.clone();
+        Callback::from(move |_| navigator.push(&Route::ManageLimits))
+    };
 
     html! {
         <section>

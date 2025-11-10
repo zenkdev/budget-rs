@@ -3,6 +3,7 @@ mod components;
 mod helpers;
 mod pages;
 mod prelude;
+mod router;
 mod state;
 
 use app::App;

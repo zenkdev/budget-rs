@@ -1,20 +1,13 @@
 use crate::prelude::*;
 
-#[derive(PartialEq, Properties)]
-pub struct MonthlyOverviewProps {
-    pub transactions: Vec<Transaction>,
-    pub monthly_limit: f64,
-}
-
 #[function_component]
-pub fn MonthlyOverview(props: &MonthlyOverviewProps) -> Html {
-    let MonthlyOverviewProps {
-        transactions,
-        monthly_limit,
-    } = props;
+pub fn MonthlyOverview() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+    let monthly_limit = state.monthly_limit;
 
     let expendeture = transactions.iter().fold(0.0, |acc, t| acc + t.amount);
-    let funds_remaining = *monthly_limit - expendeture;
+    let funds_remaining = monthly_limit - expendeture;
 
     html! {
         <section>

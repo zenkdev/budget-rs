@@ -20,3 +20,4 @@ web-sys = { version = "0.3.82", features = ["HtmlDialogElement"] }
 gloo = "0.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 numfmt = "1.2.0"
+yew-router = "0.18.0"

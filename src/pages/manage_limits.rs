@@ -2,59 +2,53 @@ use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
-#[derive(PartialEq, Properties, Clone)]
-pub struct ManageLimitsProps {
-    pub open: bool,
-    pub on_close: Callback<MouseEvent>,
-    pub transactions: Vec<Transaction>,
-    pub categories: Vec<Category>,
-    pub monthly_limit: f64,
-    pub on_submit: Callback<(f64, Vec<Category>)>,
-}
-
 #[function_component]
-pub fn ManageLimits(props: &ManageLimitsProps) -> Html {
-    let ManageLimitsProps {
-        open,
-        on_close,
-        transactions,
-        categories,
-        monthly_limit,
-        on_submit,
-    } = props;
+pub fn ManageLimits() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+    let categories = state.categories;
+    let monthly_limit = state.monthly_limit;
+
+    let navigator = use_navigator().unwrap();
+    let dispatch = use_context::<DispatchState>().expect("no ctx found");
+    let on_submit = {
+        let dispatch = dispatch.clone();
+        let navigator = navigator.clone();
+
+        Callback::from(move |(monthly_limit, categories)| {
+            dispatch.emit(Action::EditLimits((monthly_limit, categories)));
+            navigator.push(&Route::Home);
+        })
+    };
 
     html! {
-        <Dialog open={open}>
-            <div class="layout-container flex h-full grow flex-col">
-                <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
-                    <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-                        // <!-- Back Button -->
-                        <div class="flex px-4 py-3 justify-start">
-                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-10 px-4 bg-transparent text-[#93c893] hover:text-primary text-sm font-bold leading-normal tracking-[0.015em]" onclick={on_close}>
-                                <span class="truncate">{"[ < BACK ]"}</span>
-                            </button>
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    // <!-- Back Button -->
+                    <div class="flex px-4 py-3 justify-start">
+                        <BackButton />
+                    </div>
+                    // <!-- Page Heading -->
+                    <div class="flex flex-wrap justify-between gap-3 p-4">
+                        <div class="flex min-w-72 flex-col gap-3">
+                            <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">{"[ BUDGET LIMIT CONFIGURATION ]"}</p>
+                            <p class="text-[#93c893] text-base font-normal leading-normal">{"> SET SPENDING THRESHOLDS. SYSTEM WILL ALERT WHEN LIMITS ARE APPROACHED."}</p>
                         </div>
-                        // <!-- Page Heading -->
-                        <div class="flex flex-wrap justify-between gap-3 p-4">
-                            <div class="flex min-w-72 flex-col gap-3">
-                                <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">{"[ BUDGET LIMIT CONFIGURATION ]"}</p>
-                                <p class="text-[#93c893] text-base font-normal leading-normal">{"> SET SPENDING THRESHOLDS. SYSTEM WILL ALERT WHEN LIMITS ARE APPROACHED."}</p>
-                            </div>
-                        </div>
-                        <ManageLimitsForm
-                            transactions={transactions.clone()}
-                            categories={categories.clone()}
-                            monthly_limit={monthly_limit.clone()}
-                            on_submit={on_submit.clone()}
-                        />
-                        // <!-- Status Line -->
-                        <div class="px-4 py-6">
-                            <p class="text-primary text-base font-normal leading-normal">{"STATUS: AWAITING USER INPUT"}<span class="blinking-cursor">{"_"}</span></p>
-                        </div>
+                    </div>
+                    <ManageLimitsForm
+                        transactions={transactions.clone()}
+                        categories={categories.clone()}
+                        monthly_limit={monthly_limit.clone()}
+                        on_submit={on_submit.clone()}
+                    />
+                    // <!-- Status Line -->
+                    <div class="px-4 py-6">
+                        <p class="text-primary text-base font-normal leading-normal">{"STATUS: AWAITING USER INPUT"}<span class="blinking-cursor">{"_"}</span></p>
                     </div>
                 </div>
             </div>
-        </Dialog>
+        </div>
     }
 }
 

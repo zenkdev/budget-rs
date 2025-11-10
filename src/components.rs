@@ -1,3 +1,4 @@
+pub mod back_button;
 pub mod category_analysis;
 pub mod commands;
 pub mod dialog;

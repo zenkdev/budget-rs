@@ -3,42 +3,24 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
-#[derive(PartialEq, Properties)]
-pub struct AddExpenseProps {
-    pub open: bool,
-    pub on_close: Callback<MouseEvent>,
-    pub categories: Vec<Category>,
-    pub on_submit: Callback<(f64, String, usize, String)>,
-}
-
 #[function_component]
-pub fn AddExpense(props: &AddExpenseProps) -> Html {
-    let AddExpenseProps {
-        open,
-        on_close,
-        categories,
-        on_submit,
-    } = props;
+pub fn AddExpense() -> Html {
+    let navigator = use_navigator().unwrap();
+    let on_close = Callback::from(move |_| navigator.push(&Route::Home));
 
     html! {
-        <Dialog open={open}>
-            <div class="layout-container flex h-full grow flex-col">
-                    <div class="flex flex-1 justify-center py-5">
-                        <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
-                            <div class="flex flex-wrap justify-center gap-3 p-4">
-                                <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                                    { "[ < NEW EXPENSE LOG > ]" }
-                                </p>
-                            </div>
-                            <AddExpenseForm
-                                categories={categories.clone()}
-                                on_submit={on_submit.clone()}
-                                on_cancel={on_close.clone()}
-                            />
-                        </div>
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
+                    <div class="flex flex-wrap justify-center gap-3 p-4">
+                        <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                            { "[ < NEW EXPENSE LOG > ]" }
+                        </p>
                     </div>
+                    <AddExpenseForm on_close={on_close.clone()} />
                 </div>
-        </Dialog>
+            </div>
+        </div>
     }
 }
 
@@ -124,18 +106,14 @@ impl Default for FormState {
 
 #[derive(PartialEq, Properties)]
 pub struct AddExpenseFormProps {
-    pub categories: Vec<Category>,
-    pub on_submit: Callback<(f64, String, usize, String)>,
-    pub on_cancel: Callback<MouseEvent>,
+    pub on_close: Callback<()>,
 }
 
 #[function_component]
 pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
-    let AddExpenseFormProps {
-        categories,
-        on_submit,
-        on_cancel,
-    } = props;
+    let AddExpenseFormProps { on_close } = props;
+    let app_state = use_context::<State>().expect("no ctx found");
+    let categories = app_state.categories;
 
     let state = use_reducer(|| FormState::default());
 
@@ -179,15 +157,31 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         })
     };
 
-    let handle_submit = {
-        let on_submit = on_submit.clone();
+    let on_cancel = {
+        let on_close = on_close.clone();
+
+        Callback::from(move |_| on_close.emit(()))
+    };
+
+    let dispatch = use_context::<DispatchState>().expect("no ctx found");
+    let on_submit = {
         let amount = state.amount;
         let description = state.description.clone();
         let category = state.category;
         let notes = state.notes.clone();
+        let dispatch = dispatch.clone();
+        let on_close = on_close.clone();
 
         Callback::from(move |_| {
-            on_submit.emit((amount, description.clone(), category, notes.clone()))
+            let date = Utc::now();
+            dispatch.emit(Action::AddTransaction(Transaction {
+                date,
+                amount,
+                description: description.clone(),
+                category,
+                notes: notes.clone(),
+            }));
+            on_close.emit(());
         })
     };
 
@@ -259,7 +253,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
                 <button
                     class="w-full sm:w-auto px-8 py-3 bg-transparent border border-primary text-primary font-bold hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background-dark transition-colors duration-200"
                     type="submit"
-                    onclick={handle_submit}
+                    onclick={on_submit}
                     disabled={state.amount == 0.0 || state.description.is_empty() || state.category == 0}
                 >
                     {"[ SAVE ENTRY ]"}
