@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use gloo::storage::{LocalStorage, Storage};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
@@ -7,7 +7,7 @@ use yew::prelude::*;
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Transaction {
     pub amount: f64,
-    pub date: DateTime<Utc>,
+    pub date: DateTime<Local>,
     pub description: String,
     pub category: usize,
     pub notes: String,
@@ -35,7 +35,7 @@ impl Eq for State {}
 
 impl Default for State {
     fn default() -> Self {
-        let now = Utc::now();
+        let now = Local::now();
         Self {
             transactions: vec![
                 Transaction {

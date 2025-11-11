@@ -1,6 +1,7 @@
 pub mod back_button;
 pub mod category_analysis;
 pub mod commands;
+pub mod data_modal;
 pub mod dialog;
 pub mod footer;
 pub mod header;

@@ -16,7 +16,7 @@ pub fn Dialog(props: &DialogProps) -> Html {
 
     {
         let dialog_ref = dialog_ref.clone();
-        let open = open.clone();
+        let open = *open;
 
         use_effect_with((dialog_ref, open, prev), |(dialog_ref, open, prev)| {
             let dialog = dialog_ref
@@ -34,9 +34,13 @@ pub fn Dialog(props: &DialogProps) -> Html {
             }
         });
     }
+    let modal_host = gloo::utils::document()
+        .get_element_by_id("modal_host")
+        .expect("Expected to find a #modal_host element");
 
-    html! {
-         <dialog ref={dialog_ref} class="bg-background-dark font-display min-h-screen w-full p-4 sm:p-6 md:p-8 text-primary">
+    create_portal(
+        html! {
+            <dialog ref={dialog_ref} class="bg-background-dark font-display min-h-screen w-full p-4 sm:p-6 md:p-8 text-primary">
             { if *open {
                 html! {
                     { children.clone() }
@@ -44,6 +48,8 @@ pub fn Dialog(props: &DialogProps) -> Html {
             } else {
                 html! {}
             }}
-         </dialog>
-    }
+            </dialog>
+        },
+        modal_host,
+    )
 }

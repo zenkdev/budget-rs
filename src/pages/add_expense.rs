@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
@@ -27,7 +27,7 @@ pub fn AddExpense() -> Html {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 struct FormState {
     amount: f64,
-    date: DateTime<Utc>,
+    date: DateTime<Local>,
     description: String,
     category: usize,
     notes: String,
@@ -36,11 +36,11 @@ struct FormState {
 impl Eq for FormState {}
 
 enum FormAction {
-    EditAmount(f64),
-    EditDate(DateTime<Utc>),
-    EditDescription(String),
-    EditCategory(usize),
-    EditNotes(String),
+    Amount(f64),
+    Date(DateTime<Local>),
+    Description(String),
+    Category(usize),
+    Notes(String),
 }
 
 impl Reducible for FormState {
@@ -48,7 +48,7 @@ impl Reducible for FormState {
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
         match action {
-            FormAction::EditAmount(amount) => FormState {
+            FormAction::Amount(amount) => FormState {
                 amount,
                 date: self.date,
                 description: self.description.clone(),
@@ -56,7 +56,7 @@ impl Reducible for FormState {
                 notes: self.notes.clone(),
             }
             .into(),
-            FormAction::EditDate(date) => FormState {
+            FormAction::Date(date) => FormState {
                 amount: self.amount,
                 date,
                 description: self.description.clone(),
@@ -64,7 +64,7 @@ impl Reducible for FormState {
                 notes: self.notes.clone(),
             }
             .into(),
-            FormAction::EditDescription(description) => FormState {
+            FormAction::Description(description) => FormState {
                 amount: self.amount,
                 date: self.date,
                 description,
@@ -72,7 +72,7 @@ impl Reducible for FormState {
                 notes: self.notes.clone(),
             }
             .into(),
-            FormAction::EditCategory(category) => FormState {
+            FormAction::Category(category) => FormState {
                 amount: self.amount,
                 date: self.date,
                 description: self.description.clone(),
@@ -80,7 +80,7 @@ impl Reducible for FormState {
                 notes: self.notes.clone(),
             }
             .into(),
-            FormAction::EditNotes(notes) => FormState {
+            FormAction::Notes(notes) => FormState {
                 amount: self.amount,
                 date: self.date,
                 description: self.description.clone(),
@@ -96,7 +96,7 @@ impl Default for FormState {
     fn default() -> Self {
         Self {
             amount: 0.0,
-            date: Utc::now(),
+            date: Local::now(),
             description: String::new(),
             category: 0,
             notes: String::new(),
@@ -115,7 +115,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
     let app_state = use_context::<State>().expect("no ctx found");
     let categories = app_state.categories;
 
-    let state = use_reducer(|| FormState::default());
+    let state = use_reducer(FormState::default);
 
     let on_change_amount = {
         let state = state.clone();
@@ -123,7 +123,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         Callback::from(move |e: Event| {
             let value = target_input_value_amount(&e);
             tracing::info!("on_change_amount: {}", value);
-            state.dispatch(FormAction::EditAmount(value));
+            state.dispatch(FormAction::Amount(value));
         })
     };
 
@@ -133,7 +133,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         Callback::from(move |e: Event| {
             let value = target_input_value_string(&e);
             tracing::info!("on_change_description: {}", value);
-            state.dispatch(FormAction::EditDescription(value));
+            state.dispatch(FormAction::Description(value));
         })
     };
 
@@ -143,7 +143,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         Callback::from(move |e: Event| {
             let value = target_input_value_usize(&e);
             tracing::info!("on_change_category: {}", value);
-            state.dispatch(FormAction::EditCategory(value));
+            state.dispatch(FormAction::Category(value));
         })
     };
 
@@ -153,7 +153,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         Callback::from(move |e: Event| {
             let value = target_input_value_string(&e);
             tracing::info!("on_change_notes: {}", value);
-            state.dispatch(FormAction::EditNotes(value));
+            state.dispatch(FormAction::Notes(value));
         })
     };
 
@@ -173,7 +173,7 @@ pub fn AddExpenseForm(props: &AddExpenseFormProps) -> Html {
         let on_close = on_close.clone();
 
         Callback::from(move |_| {
-            let date = Utc::now();
+            let date = Local::now();
             dispatch.emit(Action::AddTransaction(Transaction {
                 date,
                 amount,

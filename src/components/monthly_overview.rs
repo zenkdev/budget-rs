@@ -20,7 +20,7 @@ pub fn MonthlyOverview() -> Html {
                         { "Monthly Limit" }
                     </p>
                     <p class="text-primary tracking-light text-2xl font-bold leading-tight text-glow">
-                        { fmt_amount(monthly_limit.clone()) }
+                        { fmt_amount(monthly_limit) }
                     </p>
                 </div>
                 <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded p-6 border border-primary/30">

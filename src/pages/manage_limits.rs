@@ -39,7 +39,7 @@ pub fn ManageLimits() -> Html {
                     <ManageLimitsForm
                         transactions={transactions.clone()}
                         categories={categories.clone()}
-                        monthly_limit={monthly_limit.clone()}
+                        monthly_limit={monthly_limit}
                         on_submit={on_submit.clone()}
                     />
                     // <!-- Status Line -->
@@ -112,7 +112,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 
     let state = use_reducer(|| FormState {
         categories: categories.clone(),
-        monthly_limit: monthly_limit.clone(),
+        monthly_limit: *monthly_limit,
     });
 
     let on_change_monthly_limit = {
@@ -136,7 +136,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 
     let handle_submit = {
         let on_submit = on_submit.clone();
-        let monthly_limit = state.monthly_limit.clone();
+        let monthly_limit = state.monthly_limit;
         let categories = state.categories.clone();
 
         Callback::from(move |_| on_submit.emit((monthly_limit, categories.clone())))

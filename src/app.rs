@@ -10,13 +10,14 @@ pub fn App() -> Html {
     };
 
     html! {
-        <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
-            <div class="scanlines"></div>
-            <ContextProvider<State> context={(*state).clone()}>
-                <ContextProvider<DispatchState> context={dispatch}>
+        <ContextProvider<State> context={(*state).clone()}>
+            <ContextProvider<DispatchState> context={dispatch}>
+                <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+                    <div class="scanlines"></div>
                     <Router />
-                </ContextProvider<DispatchState>>
-            </ContextProvider<State>>
-        </div>
+                </div>
+                <div id="modal_host"></div>
+            </ContextProvider<DispatchState>>
+        </ContextProvider<State>>
     }
 }

@@ -5,7 +5,7 @@ pub fn TransactionLogs() -> Html {
     let state = use_context::<State>().expect("no ctx found");
     let mut transactions = state.transactions.clone();
 
-    transactions.sort_by_key(|t| t.date.clone());
+    transactions.sort_by_key(|t| t.date);
     transactions.reverse();
     transactions.truncate(10);
 

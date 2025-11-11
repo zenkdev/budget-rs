@@ -1,5 +1,5 @@
 use crate::state::Transaction;
-use chrono::{DateTime, Months, Utc};
+use chrono::{DateTime, Local, Months};
 use numfmt::{Formatter, Precision};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -14,7 +14,7 @@ pub fn fmt_amount(amount: f64) -> String {
     f.fmt_string(amount)
 }
 
-pub fn fmt_date(date: DateTime<Utc>) -> String {
+pub fn fmt_date(date: DateTime<Local>) -> String {
     let fixed = date.checked_add_months(Months::new(1000 * 12)).unwrap();
 
     format!("{}", fixed.format("%Y.%m.%d"))
@@ -46,12 +46,12 @@ pub fn pad_right(s: &str, width: usize, pad_char: char) -> String {
         s.to_string()
     } else {
         let padding_needed = width - current_len;
-        let padding_string: String = std::iter::repeat(pad_char).take(padding_needed).collect();
+        let padding_string: String = std::iter::repeat_n(pad_char, padding_needed).collect();
         format!("{}{}", s, padding_string)
     }
 }
 
-pub fn get_category_spent(cat_id: usize, transactions: &Vec<Transaction>) -> f64 {
+pub fn get_category_spent(cat_id: usize, transactions: &[Transaction]) -> f64 {
     transactions
         .iter()
         .filter(|t| t.category == cat_id)
