@@ -28,8 +28,8 @@ fn switch(routes: Route) -> Html {
 #[function_component]
 pub fn Router() -> Html {
     html! {
-        <BrowserRouter>
-            <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
-        </BrowserRouter>
+        <HashRouter>
+            <Switch<Route> render={switch} /> // <- must be child of <HashRouter>
+        </HashRouter>
     }
 }

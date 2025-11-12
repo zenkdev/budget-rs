@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[function_component]
 pub fn BackButton() -> Html {
     let navigator = use_navigator().unwrap();
-    let onclick = Callback::from(move |_| navigator.back());
+    let onclick = Callback::from(move |_| navigator.push(&Route::Home));
 
     html! {
         <button
