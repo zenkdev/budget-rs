@@ -135,6 +135,7 @@ impl Default for State {
 pub enum Action {
     AddTransaction(Transaction),
     EditLimits((f64, Vec<Category>)),
+    Load((Vec<Transaction>, Vec<Category>)),
 }
 
 impl Reducible for State {
@@ -157,6 +158,12 @@ impl Reducible for State {
                 transactions: self.transactions.clone(),
                 monthly_limit,
                 categories,
+            }
+            .into(),
+            Action::Load((transactions, categories)) => State {
+                transactions,
+                categories,
+                monthly_limit: self.monthly_limit,
             }
             .into(),
         }

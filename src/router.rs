@@ -4,12 +4,14 @@ use crate::prelude::*;
 pub enum Route {
     #[at("/")]
     Home,
-    #[at("/add-expense")]
+    #[at("/add")]
     AddExpense,
-    #[at("/view-reports")]
+    #[at("/reports")]
     ViewReports,
-    #[at("/manage-limits")]
+    #[at("/limits")]
     ManageLimits,
+    #[at("/data")]
+    DataTransfer,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -21,6 +23,7 @@ fn switch(routes: Route) -> Html {
         Route::AddExpense => html! { <AddExpense /> },
         Route::ViewReports => html! { <ViewReports /> },
         Route::ManageLimits => html! { <ManageLimits /> },
+        Route::DataTransfer => html! { <DataTransfer /> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
 }

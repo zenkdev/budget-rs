@@ -2,14 +2,10 @@ use crate::prelude::*;
 
 #[function_component]
 pub fn Header() -> Html {
-    let data_modal_open = use_state(|| false);
-    let open_data_modal = {
-        let data_modal_open = data_modal_open.clone();
-        Callback::from(move |_| data_modal_open.set(true))
-    };
-    let close_data_modal = {
-        let data_modal_open = data_modal_open.clone();
-        Callback::from(move |_| data_modal_open.set(false))
+    let navigator = use_navigator().unwrap();
+    let on_data_transfer_click = {
+        let navigator = navigator.clone();
+        Callback::from(move |_| navigator.push(&Route::DataTransfer))
     };
 
     html! {
@@ -32,14 +28,13 @@ pub fn Header() -> Html {
                 </div>
                 <div class="flex flex-1 sm:justify-end gap-4 sm:gap-8">
                     <div class="flex items-center gap-4 sm:gap-9">
-                        <button class="text-primary text-glow text-sm font-medium leading-normal hover:text-white" onclick={open_data_modal}>
+                        <button class="text-primary text-glow text-sm font-medium leading-normal hover:text-white" onclick={on_data_transfer_click}>
                             { "[DATA]" }
                         </button>
                         <a class="text-primary text-sm font-medium leading-normal hover:text-white" href="#">{"[LOGOUT]"}</a>
                     </div>
                 </div>
             </header>
-            <DataModal open={*data_modal_open} on_close={close_data_modal} />
         </>
     }
 }
