@@ -1,5 +1,5 @@
 use crate::state::Transaction;
-use chrono::{DateTime, Local, Months};
+use chrono::{DateTime, Local, Months, NaiveDate};
 use numfmt::{Formatter, Precision};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -38,6 +38,12 @@ pub fn target_input_value_amount(e: &Event) -> f64 {
 pub fn target_input_value_usize(e: &Event) -> usize {
     let input: HtmlInputElement = e.target_unchecked_into();
     input.value().parse::<usize>().unwrap_or(0)
+}
+
+pub fn target_input_value_date(e: &Event) -> DateTime<Local> {
+    let input: HtmlInputElement = e.target_unchecked_into();
+    let date = NaiveDate::parse_from_str(&input.value(), "%Y-%m-%d");
+    DateTime::<Local>::from_naive_utc_and_offset(date.unwrap().into(), *Local::now().offset())
 }
 
 pub fn pad_right(s: &str, width: usize, pad_char: char) -> String {

@@ -84,8 +84,8 @@ pub fn DataTransfer() -> Html {
                     let navigator = navigator.clone();
                     parse_csv_file(
                         file.clone(),
-                        Callback::from(move |(transactions, categories)| {
-                            dispatch.emit(Action::Load((transactions, categories)));
+                        Callback::from(move |state: State| {
+                            dispatch.emit(Action::Load(state));
                             navigator.push(&Route::Home)
                         }),
                     );
@@ -94,24 +94,22 @@ pub fn DataTransfer() -> Html {
         } else {
             let transactions = state.transactions.clone();
             let categories = state.categories.clone();
+            let monthly_limit = state.monthly_limit;
             let navigator = navigator.clone();
             Callback::from(move |_| {
-                save_data_as_csv_file(transactions.clone(), categories.clone());
+                save_data_as_csv_file(transactions.clone(), categories.clone(), monthly_limit);
                 navigator.push(&Route::Home)
             })
         }
     };
 
     html! {
-        <div class="mx-auto flex h-full w-full max-w-[960px] grow flex-col border-2 border-primary/20 bg-[#112211] rounded-lg">
+        <div class="mx-auto flex my-8 w-full max-w-[960px] grow flex-col border-2 border-primary/20 bg-[#112211] rounded-lg">
             <div class="flex flex-col flex-1 p-4 md:p-6 lg:p-8">
                 <div class="flex flex-wrap justify-between gap-3 items-start">
                     <div class="flex min-w-72 flex-col gap-3">
-                        <p class="text-white tracking-light text-2xl md:text-[32px] font-bold leading-tight">
-                            { "// DATA TRANSFERENCE INTERFACE //" }
-                        </p>
-                        <p class="text-[#93c893] text-sm font-normal leading-normal">
-                            { "AWAITING COMMAND..." }
+                        <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                            { "[ DATA TRANSFERENCE INTERFACE ]" }
                         </p>
                     </div>
                     <button class="flex items-center justify-center text-[#93c893] hover:text-primary transition-colors" onclick={on_close.clone()}>
@@ -136,7 +134,7 @@ pub fn DataTransfer() -> Html {
                                     (*current_tab).eq(&Tabs::Import).then_some("text-white").or(Some("text-[#93c893] hover:text-white")),
                                 )}
                             >
-                                { "[ IMPORT ]" }
+                                { "[ INBOUND DATA STREAM ]" }
                             </p>
                         </button>
                         <button
@@ -153,19 +151,12 @@ pub fn DataTransfer() -> Html {
                                     (*current_tab).eq(&Tabs::Export).then_some("text-white").or(Some("text-[#93c893] hover:text-white")),
                                 )}
                             >
-                                { "[ EXPORT ]" }
+                                { "[ OUTBOUND DATA STREAM ]" }
                             </p>
                         </button>
                     </div>
                 </div>
                 <div class="flex flex-col flex-1">
-                    <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">
-                        { if (*current_tab).eq(&Tabs::Import) {
-                            "> INBOUND DATA STREAM"
-                        } else {
-                            "> OUTBOUND DATA STREAM"
-                        } }
-                    </h2>
                     <h3 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">
                         { "> SELECT FORMAT:" }
                     </h3>
@@ -176,7 +167,7 @@ pub fn DataTransfer() -> Html {
                         </label>
                         <label class="text-sm font-medium leading-normal flex items-center justify-center rounded border border-[#346534] px-4 h-11 text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-[#19e619] relative cursor-pointer">
                             { "JSON" }
-                            <input checked={(*format).eq(&Format::Json)} class="invisible absolute" name="format-select" type="radio" onclick={on_json_click}/>
+                            <input checked={(*format).eq(&Format::Json)} class="invisible absolute" name="format-select" type="radio" onclick={on_json_click} disabled={true} />
                         </label>
                     </div>
                     { if (*current_tab).eq(&Tabs::Import) {
@@ -239,8 +230,8 @@ pub fn DataTransfer() -> Html {
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 pt-8">
-                    <button
-                        class="flex w-full sm:w-auto flex-1 cursor-pointer items-center justify-center overflow-hidden rounded h-12 px-6 bg-primary/90 hover:bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em]"
+                    <Button
+                        class="w-full sm:w-auto flex-1"
                         onclick={on_initiate_click}
                     >
                         <span class="truncate">
@@ -250,15 +241,22 @@ pub fn DataTransfer() -> Html {
                                 "[ INITIATE EXPORT ]"
                             }}
                         </span>
-                    </button>
-                    <button
-                        class="flex w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded h-12 px-6 border border-[#346534] text-[#93c893] hover:border-primary hover:text-primary text-base font-bold leading-normal tracking-[0.015em]"
+                    </Button>
+                    <Button
+                        class="w-full sm:w-auto"
+                        variant={ButtonVariant::Cancel}
                         onclick={on_close.clone()}
                     >
                         <span class="truncate">
                             { "< CANCEL >" }
                         </span>
-                    </button>
+                    </Button>
+                </div>
+                <div class="pt-8">
+                    <p class="text-primary text-base font-normal leading-normal">
+                        { "STATUS: AWAITING COMMAND" }
+                        <span class="blinking-cursor">{ "_" }</span>
+                    </p>
                 </div>
             </div>
         </div>

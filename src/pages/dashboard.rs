@@ -13,11 +13,48 @@ pub fn Dashboard() -> Html {
                             <CategoryAnalysis />
                             <TransactionLogs />
                         </div>
-                        <Commands />
+                        <section>
+                            <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 text-glow">
+                                { "// COMMANDS //" }
+                            </h3>
+                            <div class="p-4 flex flex-col sm:flex-row gap-4">
+                                <CommandLink to={Route::AddTransaction}>
+                                    { ">_ ADD TRANSACTION" }
+                                </CommandLink>
+                                <CommandLink to={Route::ViewReports}                                >
+                                    { ">_ VIEW REPORTS" }
+                                </CommandLink>
+                                <CommandLink to={Route::ManageLimits}>
+                                    { ">_ MANAGE LIMITS" }
+                                </CommandLink>
+                            </div>
+                        </section>
                     </main>
                     <Footer/>
                 </div>
             </div>
         </div>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+struct CommandLinkProps {
+    to: Route,
+    children: Children,
+}
+
+#[function_component]
+fn CommandLink(props: &CommandLinkProps) -> Html {
+    let CommandLinkProps { to, children } = props;
+
+    html! {
+        <Link<Route>
+            classes="flex-1 text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200"
+            to={to.clone()}
+        >
+            <span class="font-bold">
+                { children.clone() }
+            </span>
+        </Link<Route>>
     }
 }

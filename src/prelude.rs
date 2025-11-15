@@ -1,6 +1,10 @@
 pub use crate::components::{
-    back_button::BackButton, category_analysis::CategoryAnalysis, commands::Commands,
-    data_transfer::DataTransfer, footer::Footer, header::Header, monthly_overview::MonthlyOverview,
+    back_button::BackButton,
+    button::{Button, ButtonVariant},
+    category_analysis::CategoryAnalysis,
+    footer::Footer,
+    header::Header,
+    monthly_overview::MonthlyOverview,
     transaction_logs::TransactionLogs,
 };
 
@@ -8,12 +12,12 @@ pub use crate::csv::{parse_csv_file, save_data_as_csv_file};
 
 pub use crate::helpers::{
     fmt_amount, fmt_date, get_category_spent, pad_right, target_input_value_amount,
-    target_input_value_string, target_input_value_usize,
+    target_input_value_date, target_input_value_string, target_input_value_usize,
 };
 
 pub use crate::pages::{
-    add_expense::AddExpense, dashboard::Dashboard, manage_limits::ManageLimits,
-    view_reports::ViewReports,
+    add_transaction::AddTransaction, dashboard::Dashboard, data_transfer::DataTransfer,
+    manage_limits::ManageLimits, view_reports::ViewReports,
 };
 
 pub use crate::router::{Route, Router};

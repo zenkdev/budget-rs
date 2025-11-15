@@ -6,15 +6,27 @@ use gloo_utils::document;
 use std::collections::HashMap;
 use web_sys::{wasm_bindgen::JsCast, File, FileReader, HtmlAnchorElement};
 
-pub fn save_data_as_csv_file(transactions: Vec<Transaction>, categories: Vec<Category>) {
+pub fn save_data_as_csv_file(
+    transactions: Vec<Transaction>,
+    categories: Vec<Category>,
+    monthly_limit: f64,
+) {
     let mut writer = WriterBuilder::new().delimiter(b';').from_writer(vec![]);
     writer
-        .write_record(["Amount", "Date", "Description", "Category", "Notes"])
+        .write_record([
+            "Amount",
+            "Date",
+            "Description",
+            "Category",
+            "Limit",
+            "Notes",
+            "Monthly Limit",
+        ])
         .expect("Failed to write record");
     let categories_map = categories
         .iter()
-        .map(|c| (c.id, c.name.clone()))
-        .collect::<HashMap<usize, String>>();
+        .map(|c| (c.id, (c.name.clone(), c.limit)))
+        .collect::<HashMap<usize, (String, f64)>>();
     for transaction in transactions {
         writer
             .write_record(&[
@@ -23,9 +35,16 @@ pub fn save_data_as_csv_file(transactions: Vec<Transaction>, categories: Vec<Cat
                 transaction.description,
                 categories_map
                     .get(&transaction.category)
-                    .unwrap_or(&"".to_string())
+                    .expect("Category not found")
+                    .0
                     .clone(),
+                categories_map
+                    .get(&transaction.category)
+                    .expect("Category not found")
+                    .1
+                    .to_string(),
                 transaction.notes,
+                monthly_limit.to_string(),
             ])
             .expect("Failed to write record");
     }
@@ -48,7 +67,7 @@ pub fn save_data_as_csv_file(transactions: Vec<Transaction>, categories: Vec<Cat
     a.click();
 }
 
-pub fn parse_csv_file(file: File, on_success: Callback<(Vec<Transaction>, Vec<Category>)>) {
+pub fn parse_csv_file(file: File, on_success: Callback<State>) {
     let file_reader = FileReader::new().unwrap();
     let value = file_reader.clone();
     file_reader.set_onloadend(Some(
@@ -60,6 +79,7 @@ pub fn parse_csv_file(file: File, on_success: Callback<(Vec<Transaction>, Vec<Ca
                 .from_reader(content.as_bytes());
             let mut transactions = Vec::new();
             let mut categories: Vec<Category> = Vec::new();
+            let mut monthly_limit = 0.0;
             for record in reader.records() {
                 let record = record.unwrap();
 
@@ -83,7 +103,7 @@ pub fn parse_csv_file(file: File, on_success: Callback<(Vec<Transaction>, Vec<Ca
                         categories.push(Category {
                             id: id,
                             name: category,
-                            limit: 0.0,
+                            limit: record[4].parse::<f64>().unwrap(),
                         });
                     }
                 }
@@ -96,10 +116,18 @@ pub fn parse_csv_file(file: File, on_success: Callback<(Vec<Transaction>, Vec<Ca
                     ),
                     description: record[2].to_string(),
                     category: id,
-                    notes: record[4].to_string(),
+                    notes: record[5].to_string(),
                 });
+
+                if monthly_limit == 0.0 {
+                    monthly_limit = record[6].parse::<f64>().unwrap();
+                }
             }
-            on_success.emit((transactions, categories));
+            on_success.emit(State {
+                transactions,
+                categories,
+                monthly_limit,
+            });
         })
         .unchecked_into(),
     ));

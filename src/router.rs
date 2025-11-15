@@ -5,7 +5,7 @@ pub enum Route {
     #[at("/")]
     Home,
     #[at("/add")]
-    AddExpense,
+    AddTransaction,
     #[at("/reports")]
     ViewReports,
     #[at("/limits")]
@@ -20,7 +20,7 @@ pub enum Route {
 fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Dashboard /> },
-        Route::AddExpense => html! { <AddExpense /> },
+        Route::AddTransaction => html! { <AddTransaction /> },
         Route::ViewReports => html! { <ViewReports /> },
         Route::ManageLimits => html! { <ManageLimits /> },
         Route::DataTransfer => html! { <DataTransfer /> },

@@ -25,15 +25,17 @@ pub fn ManageLimits() -> Html {
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-                    // <!-- Back Button -->
                     <div class="flex px-4 py-3 justify-start">
                         <BackButton />
                     </div>
-                    // <!-- Page Heading -->
                     <div class="flex flex-wrap justify-between gap-3 p-4">
                         <div class="flex min-w-72 flex-col gap-3">
-                            <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">{"[ BUDGET LIMIT CONFIGURATION ]"}</p>
-                            <p class="text-[#93c893] text-base font-normal leading-normal">{"> SET SPENDING THRESHOLDS. SYSTEM WILL ALERT WHEN LIMITS ARE APPROACHED."}</p>
+                            <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                                { "[ BUDGET LIMIT CONFIGURATION ]" }
+                            </p>
+                            <p class="text-[#93c893] text-base font-normal leading-normal">
+                                { "> SET SPENDING THRESHOLDS. SYSTEM WILL ALERT WHEN LIMITS ARE APPROACHED." }
+                            </p>
                         </div>
                     </div>
                     <ManageLimitsForm
@@ -42,9 +44,11 @@ pub fn ManageLimits() -> Html {
                         monthly_limit={monthly_limit}
                         on_submit={on_submit.clone()}
                     />
-                    // <!-- Status Line -->
                     <div class="px-4 py-6">
-                        <p class="text-primary text-base font-normal leading-normal">{"STATUS: AWAITING USER INPUT"}<span class="blinking-cursor">{"_"}</span></p>
+                        <p class="text-primary text-base font-normal leading-normal">
+                            { "STATUS: AWAITING USER INPUT" }
+                            <span class="blinking-cursor">{ "_" }</span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -151,7 +155,6 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 
     html! {
         <form class="flex flex-col gap-8">
-            // <!-- Overall Limit Input -->
             <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
                 <label class="flex flex-col min-w-40 flex-1">
                     <p class="text-primary text-base font-medium leading-normal pb-2">{"> OVERALL MONTHLY LIMIT:"}</p>
@@ -162,7 +165,6 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                     />
                 </label>
             </div>
-            // <!-- Category Limits Table -->
             <div class="px-4 py-3 @container">
                 <div class="flex overflow-hidden border border-[#346534] bg-background-dark">
                     <table class="flex-1 w-full">
@@ -181,19 +183,23 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                     </table>
                 </div>
             </div>
-            // <!-- Action Buttons -->
             <div class="flex justify-stretch">
                 <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-start">
-                    <button
-                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-10 px-4 bg-primary text-background-dark hover:bg-opacity-80 text-sm font-bold leading-normal tracking-[0.015em]"
+                    <Button
+                        class="min-w-[84px] max-w-[480px]"
                         onclick={handle_submit}>
-                        <span class="truncate">{"[ SAVE CHANGES ]"}</span>
-                    </button>
-                    <button
-                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-10 px-4 bg-[#244724] text-[#93c893] hover:text-primary text-sm font-bold leading-normal tracking-[0.015em]"
+                        <span class="truncate">
+                            { "[ SAVE CHANGES ]" }
+                        </span>
+                    </Button>
+                    <Button
+                        class="min-w-[84px] max-w-[480px]"
+                        variant={ButtonVariant::Secondary}
                         onclick={handle_reset}>
-                        <span class="truncate">{"[ RESET TO DEFAULTS ]"}</span>
-                    </button>
+                        <span class="truncate">
+                            { "[ RESET TO DEFAULTS ]" }
+                        </span>
+                    </Button>
                 </div>
             </div>
         </form>
