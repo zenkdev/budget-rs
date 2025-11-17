@@ -85,7 +85,7 @@ pub fn DataTransfer() -> Html {
             let navigator = navigator.clone();
             let format = (*format).clone();
             Callback::from(move |_| {
-                save_data_as_file(state.clone(), format.clone());
+                save_to_file(state.clone(), format.clone());
                 navigator.push(&Route::Home)
             })
         }

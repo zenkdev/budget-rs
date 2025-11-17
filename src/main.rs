@@ -1,6 +1,6 @@
 mod app;
 mod components;
-mod data;
+mod csv;
 mod helpers;
 mod pages;
 mod prelude;

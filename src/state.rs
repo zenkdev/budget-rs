@@ -1,7 +1,11 @@
 use chrono::{DateTime, Local};
 use gloo::storage::{LocalStorage, Storage};
+use gloo_file::{Blob, ObjectUrl};
+use gloo_utils::document;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::rc::Rc;
+use web_sys::{wasm_bindgen::JsCast, File, FileReader, HtmlAnchorElement};
 use yew::prelude::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -187,3 +191,67 @@ pub fn use_app_state() -> UseReducerHandle<State> {
 }
 
 pub type DispatchState = Callback<Action>;
+
+pub fn parse_file(file: File, on_success: Callback<State>) {
+    let format = if file.type_() == "text/csv" {
+        FileFormat::Csv
+    } else if file.type_() == "application/json" {
+        FileFormat::Json
+    } else {
+        panic!("Unsupported file type: {}", file.type_());
+    };
+    let file_reader = FileReader::new().unwrap();
+    let value = file_reader.clone();
+    file_reader.set_onloadend(Some(
+        &wasm_bindgen::closure::Closure::once_into_js(move |_: Event| {
+            let result = value.result().unwrap();
+            let content = result.as_string().unwrap(); // Assuming text file
+            let state: State = match format {
+                FileFormat::Csv => crate::csv::csv_to_state(content),
+                FileFormat::Json => serde_json::from_str(&content).unwrap(),
+            };
+            on_success.emit(state);
+        })
+        .unchecked_into(),
+    ));
+    file_reader.read_as_text(&file).unwrap();
+}
+
+#[derive(PartialEq, Clone)]
+pub enum FileFormat {
+    Csv,
+    Json,
+}
+
+impl fmt::Display for FileFormat {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FileFormat::Csv => write!(f, "csv"),
+            FileFormat::Json => write!(f, "json"),
+        }
+    }
+}
+
+pub fn save_to_file(state: State, format: FileFormat) {
+    let content = match format {
+        FileFormat::Csv => crate::csv::state_to_csv(state.clone()),
+        FileFormat::Json => serde_json::to_string(&state).expect("Failed to convert to JSON"),
+    };
+    let blob = Blob::new(content.as_str());
+    let url = ObjectUrl::from(blob);
+    let a = document()
+        .create_element("a")
+        .expect("Failed to create anchor element")
+        .dyn_into::<HtmlAnchorElement>()
+        .expect("Failed to cast element to anchor element");
+    a.set_href(&url);
+    a.set_download(
+        format!(
+            "budget_data_{}.{}",
+            Local::now().format("%Y%m%d%H%M%S"),
+            format.to_string()
+        )
+        .as_str(),
+    );
+    a.click();
+}

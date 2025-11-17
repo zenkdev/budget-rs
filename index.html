@@ -120,7 +120,29 @@
     }
 
     .dotted::after {
-      content: " ...........................................................................................................................................................................................................................";
+      content: " ............................................................................................................................................................................";
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .tooltip-text {
+      visibility: hidden;
+      position: absolute;
+      z-index: 1;
+      background-color: #19e619;
+      color: #0d1e0d;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
     }
   </style>
 </head>

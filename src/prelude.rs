@@ -8,8 +8,6 @@ pub use crate::components::{
     transaction_logs::TransactionLogs,
 };
 
-pub use crate::data::{parse_file, save_data_as_file, FileFormat};
-
 pub use crate::helpers::{
     fmt_amount, fmt_date, get_category_spent_this_month, get_percent, get_start_of_month,
     pad_right, target_input_value_amount, target_input_value_date, target_input_value_string,
@@ -23,7 +21,10 @@ pub use crate::pages::{
 
 pub use crate::router::{Route, Router};
 
-pub use crate::state::{use_app_state, Action, Category, DispatchState, State, Transaction};
+pub use crate::state::{
+    parse_file, save_to_file, use_app_state, Action, Category, DispatchState, FileFormat, State,
+    Transaction,
+};
 
 pub use yew::prelude::*;
 pub use yew_hooks::prelude::*;

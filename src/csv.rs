@@ -1,38 +1,9 @@
-use crate::prelude::*;
+use crate::state::{Category, State, Transaction};
 use chrono::{DateTime, Local, NaiveDate};
 use csv::{ReaderBuilder, WriterBuilder};
-use gloo_file::{Blob, ObjectUrl};
-use gloo_utils::document;
 use std::collections::HashMap;
-use std::fmt;
-use web_sys::{wasm_bindgen::JsCast, File, FileReader, HtmlAnchorElement};
 
-pub fn parse_file(file: File, on_success: Callback<State>) {
-    let format = if file.type_() == "text/csv" {
-        FileFormat::Csv
-    } else if file.type_() == "application/json" {
-        FileFormat::Json
-    } else {
-        panic!("Unsupported file type: {}", file.type_());
-    };
-    let file_reader = FileReader::new().unwrap();
-    let value = file_reader.clone();
-    file_reader.set_onloadend(Some(
-        &wasm_bindgen::closure::Closure::once_into_js(move |_: Event| {
-            let result = value.result().unwrap();
-            let content = result.as_string().unwrap(); // Assuming text file
-            let state: State = match format {
-                FileFormat::Csv => convert_csv_to_data(content),
-                FileFormat::Json => serde_json::from_str(&content).unwrap(),
-            };
-            on_success.emit(state);
-        })
-        .unchecked_into(),
-    ));
-    file_reader.read_as_text(&file).unwrap();
-}
-
-pub fn convert_csv_to_data(content: String) -> State {
+pub fn csv_to_state(content: String) -> State {
     let mut reader = ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(content.as_bytes());
@@ -92,46 +63,7 @@ pub fn convert_csv_to_data(content: String) -> State {
     }
 }
 
-#[derive(PartialEq, Clone)]
-pub enum FileFormat {
-    Csv,
-    Json,
-}
-
-impl fmt::Display for FileFormat {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            FileFormat::Csv => write!(f, "csv"),
-            FileFormat::Json => write!(f, "json"),
-        }
-    }
-}
-
-pub fn save_data_as_file(state: State, format: FileFormat) {
-    let content = match format {
-        FileFormat::Csv => convert_data_to_csv(state.clone()),
-        FileFormat::Json => serde_json::to_string(&state).expect("Failed to convert to JSON"),
-    };
-    let blob = Blob::new(content.as_str());
-    let url = ObjectUrl::from(blob);
-    let a = document()
-        .create_element("a")
-        .expect("Failed to create anchor element")
-        .dyn_into::<HtmlAnchorElement>()
-        .expect("Failed to cast element to anchor element");
-    a.set_href(&url);
-    a.set_download(
-        format!(
-            "budget_data_{}.{}",
-            Local::now().format("%Y%m%d%H%M%S"),
-            format.to_string()
-        )
-        .as_str(),
-    );
-    a.click();
-}
-
-fn convert_data_to_csv(state: State) -> String {
+pub fn state_to_csv(state: State) -> String {
     let transactions = state.transactions.clone();
     let categories = state.categories.clone();
     let monthly_limit = state.monthly_limit;

@@ -237,7 +237,7 @@ fn MonthBreakdown() -> Html {
                     { for normalized_data.iter().map(|(month, normalized_spent, spent_amount)| html! {
                         <>
                             <div
-                                class="w-full flex items-center justify-center"
+                                class="w-full flex items-center justify-center tooltip"
                                 style={if *spent_amount > monthly_limit {
                                         let ratio = monthly_limit / *spent_amount;
                                         format!(
@@ -249,7 +249,12 @@ fn MonthBreakdown() -> Html {
                                     } else {
                                         format!( "min-height: {}%; background: #244724;", normalized_spent)
                                     }
-                                }></div>
+                                }
+                            >
+                                <span class="tooltip-text">
+                                    { fmt_amount(*spent_amount) }
+                                </span>
+                            </div>
                             <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">
                                 { if month.month() == 1 {
                                     format!("{}", month.year())
