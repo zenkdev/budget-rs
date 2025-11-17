@@ -7,12 +7,6 @@ enum Tabs {
     Export,
 }
 
-#[derive(PartialEq)]
-enum Format {
-    Csv,
-    Json,
-}
-
 #[function_component]
 pub fn DataTransfer() -> Html {
     let navigator = use_navigator().unwrap();
@@ -29,14 +23,14 @@ pub fn DataTransfer() -> Html {
         let current_tab = current_tab.clone();
         Callback::from(move |_| current_tab.set(Tabs::Export))
     };
-    let format = use_state(|| Format::Csv);
+    let format = use_state(|| FileFormat::Csv);
     let on_csv_click = {
         let format = format.clone();
-        Callback::from(move |_| format.set(Format::Csv))
+        Callback::from(move |_| format.set(FileFormat::Csv))
     };
     let on_json_click = {
         let format = format.clone();
-        Callback::from(move |_| format.set(Format::Json))
+        Callback::from(move |_| format.set(FileFormat::Json))
     };
 
     let file_ref = use_node_ref();
@@ -51,11 +45,7 @@ pub fn DataTransfer() -> Html {
         Callback::from(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
             let file = input.files().unwrap().get(0).unwrap();
-            if file.type_() == "text/csv" {
-                selected_file.set(Some(file));
-            } else {
-                selected_file.set(None);
-            }
+            selected_file.set(Some(file));
         })
     };
 
@@ -82,7 +72,7 @@ pub fn DataTransfer() -> Html {
                 if let Some(file) = &*selected_file {
                     let dispatch = dispatch.clone();
                     let navigator = navigator.clone();
-                    parse_csv_file(
+                    parse_file(
                         file.clone(),
                         Callback::from(move |state: State| {
                             dispatch.emit(Action::Load(state));
@@ -92,12 +82,10 @@ pub fn DataTransfer() -> Html {
                 }
             })
         } else {
-            let transactions = state.transactions.clone();
-            let categories = state.categories.clone();
-            let monthly_limit = state.monthly_limit;
             let navigator = navigator.clone();
+            let format = (*format).clone();
             Callback::from(move |_| {
-                save_data_as_csv_file(transactions.clone(), categories.clone(), monthly_limit);
+                save_data_as_file(state.clone(), format.clone());
                 navigator.push(&Route::Home)
             })
         }
@@ -159,11 +147,11 @@ pub fn DataTransfer() -> Html {
                     <div class="flex flex-wrap gap-3 pb-4">
                         <label class="text-sm font-medium leading-normal flex items-center justify-center rounded border border-[#346534] px-4 h-11 text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-[#19e619] relative cursor-pointer">
                             { "CSV" }
-                            <input checked={(*format).eq(&Format::Csv)} class="invisible absolute" name="format-select" type="radio" onclick={on_csv_click}/>
+                            <input checked={(*format).eq(&FileFormat::Csv)} class="invisible absolute" name="format-select" type="radio" onclick={on_csv_click}/>
                         </label>
                         <label class="text-sm font-medium leading-normal flex items-center justify-center rounded border border-[#346534] px-4 h-11 text-white has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-[#19e619] relative cursor-pointer">
                             { "JSON" }
-                            <input checked={(*format).eq(&Format::Json)} class="invisible absolute" name="format-select" type="radio" onclick={on_json_click} disabled={true} />
+                            <input checked={(*format).eq(&FileFormat::Json)} class="invisible absolute" name="format-select" type="radio" onclick={on_json_click} />
                         </label>
                     </div>
                     { if (*current_tab).eq(&Tabs::Import) {
@@ -193,7 +181,7 @@ pub fn DataTransfer() -> Html {
                                         type="file"
                                         class="invisible absolute"
                                         multiple={false}
-                                        accept={(*format).eq(&Format::Json).then_some(".json").or(Some(".csv"))}
+                                        accept={format!(".{}", *format)}
                                         onchange={on_change_file}
                                     />
                                 </div>
