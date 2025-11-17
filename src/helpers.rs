@@ -1,5 +1,5 @@
 use crate::state::Transaction;
-use chrono::{DateTime, Local, Months, NaiveDate};
+use chrono::{DateTime, Datelike, Local, Months, NaiveDate};
 use numfmt::{Formatter, Precision};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -57,9 +57,29 @@ pub fn pad_right(s: &str, width: usize, pad_char: char) -> String {
     }
 }
 
-pub fn get_category_spent(cat_id: usize, transactions: &[Transaction]) -> f64 {
+pub fn get_start_of_month() -> DateTime<Local> {
+    let now = Local::now();
+    DateTime::<Local>::from_naive_utc_and_offset(
+        NaiveDate::from_ymd_opt(now.year(), now.month(), 1)
+            .unwrap()
+            .into(),
+        *now.offset(),
+    )
+}
+
+pub fn get_category_spent_this_month(cat_id: usize, transactions: &[Transaction]) -> f64 {
+    let start_of_month = get_start_of_month();
+
     transactions
         .iter()
-        .filter(|t| t.category == cat_id)
+        .filter(|t| t.category == cat_id && t.date >= start_of_month)
         .fold(0.0, |acc, t| acc + t.amount)
+}
+
+pub fn get_percent(amount: f64, total: f64) -> i32 {
+    if total > 0.0 {
+        (amount / total * 100.0) as i32
+    } else {
+        0
+    }
 }

@@ -66,7 +66,7 @@ pub fn DataTransfer() -> Html {
         |(selected_file, files)| {
             let selected_file = selected_file.clone();
             if let Some(files) = files.as_ref() {
-                let file = files.get(0).unwrap();
+                let file = files.first().unwrap();
                 selected_file.set(Some(file.clone()));
             }
         },
@@ -112,11 +112,7 @@ pub fn DataTransfer() -> Html {
                             { "[ DATA TRANSFERENCE INTERFACE ]" }
                         </p>
                     </div>
-                    <button class="flex items-center justify-center text-[#93c893] hover:text-primary transition-colors" onclick={on_close.clone()}>
-                        <span class="text-2xl font-bold">
-                            { "[X]" }
-                        </span>
-                    </button>
+                    <HomeLink variant={HomeLinkVariant::Close} />
                 </div>
                 <div class="pt-4 pb-3">
                     <div class="flex border-b border-[#346534] gap-8">

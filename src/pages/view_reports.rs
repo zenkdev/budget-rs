@@ -1,19 +1,32 @@
 use crate::prelude::*;
+use chrono::{Datelike, Months};
+use std::cmp;
 
 #[function_component]
 pub fn ViewReports() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+    let monthly_limit = state.monthly_limit;
+
+    let start_of_month = get_start_of_month();
+    let expendeture = transactions
+        .iter()
+        .filter(|t| t.date >= start_of_month)
+        .fold(0.0, |acc, t| acc + t.amount);
+    let percent = get_percent(expendeture, monthly_limit);
+
     html! {
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-                    // <!-- Back Button -->
                     <div class="flex px-4 py-3 justify-start">
-                        <BackButton />
+                        <HomeLink variant={HomeLinkVariant::Back} />
                     </div>
-                    // <!-- Page Heading -->
                     <div class="flex flex-wrap justify-between gap-3 p-4">
                         <div class="flex min-w-72 flex-col gap-3">
-                            <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">{"[ FINANCIAL OVERVIEW ]"}</p>
+                            <p class="text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                                { "[ FINANCIAL OVERVIEW ]" }
+                            </p>
                         </div>
                     </div>
                     // <div class="flex gap-2">
@@ -27,110 +40,223 @@ pub fn ViewReports() -> Html {
                     //         <span class="material-symbols-outlined text-xl">{"notifications"}</span>
                     //     </button>
                     // </div>
-                    // <!-- Spacer -->
                     <div class="h-8"></div>
-                    // <!-- Financial Overview -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 flex flex-col gap-6">
-                            <div class="border border-[#244724] p-4 rounded">
-                                <div class="flex flex-col gap-3">
-                                    <div class="flex gap-6 justify-between items-center">
-                                        <p class="text-white text-base font-medium leading-normal">{"Monthly Rationing Allowance"}</p>
-                                        <p class="text-white text-sm font-normal leading-normal">{"65%"}</p>
-                                    </div>
-                                    <div class="rounded bg-[#346534]">
-                                        <div class="h-2 rounded bg-primary" style="width: 65%;"></div>
-                                    </div>
-                                    <p class="text-[#93c893] text-sm font-normal leading-normal">{"$1300 / $2000 Spent"}</p>
+                    <div class="flex flex-col gap-6">
+                        <div class="border border-[#244724] p-4 rounded">
+                            <div class="flex flex-col gap-3">
+                                <div class="flex gap-6 justify-between items-center">
+                                    <p class="text-white text-base font-medium leading-normal">{"Monthly Rationing Allowance"}</p>
+                                    <p class="text-white text-sm font-normal leading-normal">
+                                        { format!("{}%", percent) }
+                                    </p>
                                 </div>
-                            </div>
-                            <div class="border border-[#244724] p-4 rounded flex flex-wrap gap-4">
-                                <div class="flex min-w-72 flex-1 flex-col gap-2">
-                                    <p class="text-white text-base font-medium leading-normal">{"Spending Breakdown"}</p>
-                                    <p class="text-primary tracking-light text-[32px] font-bold leading-tight truncate">{"$1300.00"}</p>
-                                    <div class="flex gap-1">
-                                        <p class="text-[#93c893] text-base font-normal leading-normal">{"This Month"}</p>
-                                        <p class="text-primary text-base font-medium leading-normal">{"+5%"}</p>
-                                    </div>
-                                    <div class="grid min-h-[180px] grid-flow-col gap-6 grid-rows-[1fr_auto] items-end justify-items-center px-3">
-                                        <div class="border-primary bg-[#244724] border-t-2 w-full" style="height: 25%;"></div>
-                                        <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">{"Food"}</p>
-                                        <div class="border-primary bg-[#244724] border-t-2 w-full" style="height: 40%;"></div>
-                                        <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">{"Utilities"}</p>
-                                        <div class="border-primary bg-[#244724] border-t-2 w-full" style="height: 15%;"></div>
-                                        <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">{"Transport"}</p>
-                                        <div class="border-primary bg-[#244724] border-t-2 w-full" style="height: 10%;"></div>
-                                        <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">{"Misc"}</p>
-                                        <div class="border-primary bg-[#244724] border-t-2 w-full" style="height: 10%;"></div>
-                                        <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">{"Meds"}</p>
-                                    </div>
+                                <div class="rounded bg-[#346534]">
+                                    <div class="h-2 rounded bg-primary" style={format!("width: {}%", cmp::min(percent, 100))}></div>
                                 </div>
+                                <p class="text-[#93c893] text-sm font-normal leading-normal">
+                                    { format!("{} / {} Spent", fmt_amount(expendeture), fmt_amount(monthly_limit)) }
+                                </p>
                             </div>
                         </div>
-                        <div class="lg:col-span-1 flex flex-col gap-6">
-                            <div class="border border-[#244724] p-4 rounded">
-                                <h3 class="text-white text-lg font-bold mb-4">{"// SUMMARY //"}</h3>
-                                <div class="flex flex-col gap-3 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-[#93c893]">{"[TOTAL INCOME]:"}</span>
-                                        <span class="text-white font-bold">{"$2000.00"}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-[#93c893]">{"[TOTAL SPENT]:"}</span>
-                                        <span class="text-white font-bold">{"$1300.00"}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-[#93c893]">{"[NET SAVINGS]:"}</span>
-                                        <span class="text-primary font-bold">{"$700.00"}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border border-[#244724] p-4 rounded">
-                                <h3 class="text-white text-lg font-bold mb-4">{"// RECENT TRANSACTIONS //"}</h3>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm">
-                                        <thead>
-                                            <tr class="text-[#93c893] border-b border-[#346534]">
-                                                <th class="py-2 px-1">{"[DATE]"}</th>
-                                                <th class="py-2 px-1">{"[DESC]"}</th>
-                                                <th class="py-2 px-1 text-right">{"[AMT]"}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="text-white divide-y divide-[#244724]">
-                                            <tr>
-                                                <td class="py-2 px-1">{"10-23-77"}</td>
-                                                <td class="py-2 px-1">{"Super-Duper Mart"}</td>
-                                                <td class="py-2 px-1 text-right text-red-400">{"-$58.12"}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="py-2 px-1">{"10-22-77"}</td>
-                                                <td class="py-2 px-1">{"Red Rocket Fuel"}</td>
-                                                <td class="py-2 px-1 text-right text-red-400">{"-$35.50"}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="py-2 px-1">{"10-22-77"}</td>
-                                                <td class="py-2 px-1">{"Water Bill"}</td>
-                                                <td class="py-2 px-1 text-right text-red-400">{"-$120.00"}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="py-2 px-1">{"10-21-77"}</td>
-                                                <td class="py-2 px-1">{"Stimpak Purchase"}</td>
-                                                <td class="py-2 px-1 text-right text-red-400">{"-$75.00"}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="py-2 px-1">{"10-20-77"}</td>
-                                                <td class="py-2 px-1">{"Nuka-Cola"}</td>
-                                                <td class="py-2 px-1 text-right text-red-400">{"-$10.00"}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <button class="mt-4 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-[#244724] hover:bg-primary/30 text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                                    <span class="truncate">{"[ ADD NEW TRANSACTION ]"}</span>
-                                </button>
-                            </div>
+                        <SpendingBreakdown />
+                        <MonthBreakdown />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+#[function_component]
+fn SpendingBreakdown() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+
+    let start_of_month = get_start_of_month();
+    let expendeture = transactions
+        .iter()
+        .filter(|t| t.date >= start_of_month)
+        .fold(0.0, |acc, t| acc + t.amount);
+
+    let start_of_prev_month = start_of_month.checked_sub_months(Months::new(1)).unwrap();
+    let prev_expendeture = transactions
+        .iter()
+        .filter(|t| t.date >= start_of_prev_month && t.date < start_of_month)
+        .fold(0.0, |acc, t| acc + t.amount);
+    let prev_percent = get_percent(expendeture - prev_expendeture, prev_expendeture);
+    let mut data = state
+        .categories
+        .iter()
+        .map(|category| {
+            let spent = get_category_spent_this_month(category.id, &transactions);
+            let percent = get_percent(spent, expendeture);
+            (category.name.clone(), percent)
+        })
+        .filter(|(_, percent)| *percent > 0)
+        .collect::<Vec<_>>();
+    data.sort_by_key(|(_, percent)| *percent);
+
+    let colors = vec![
+        "#EED677", "#AADFFF", "#4EF483", "#65A1C1", "#F66C41", "#7C4EFF", "#A2B062", "#F2A15C",
+        "#C8E2BB", "#C7B2FF",
+    ];
+    let background = data.iter().enumerate().fold(
+        "background: conic-gradient(".to_string(),
+        |acc, (index, (_, percent))| {
+            let color = colors[index % colors.len()];
+
+            if index == 0 {
+                format!("{}{} {}%,", acc, color, *percent)
+            } else if index < data.len() - 1 {
+                format!("{}{} 0 {}%,", acc, color, *percent)
+            } else {
+                format!("{}{} 0 {}%);", acc, color, *percent)
+            }
+        },
+    );
+
+    html! {
+        <div class="border border-[#244724] p-4 rounded flex flex-wrap gap-4">
+            <div class="flex min-w-72 flex-1 flex-col gap-2">
+                <p class="text-white text-base font-medium leading-normal">
+                    { "Spending Breakdown" }
+                </p>
+                <p class="text-primary tracking-light text-[32px] font-bold leading-tight truncate">
+                    { fmt_amount(expendeture) }
+                </p>
+                <div class="flex gap-1">
+                    <p class="text-[#93c893] text-base font-normal leading-normal">
+                        { "This Month" }
+                    </p>
+                    <p class="text-primary text-base font-medium leading-normal">
+                        { if prev_percent > 0 {
+                            format!("+{}%", prev_percent)
+                        } else if prev_percent < 0 {
+                            format!("{}%", prev_percent)
+                        } else {
+                            "".to_string()
+                        } }
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <div class="lg:col-span-2 flex flex-col gap-6">
+                        <div class="grid min-h-[180px] grid-flow-col gap-6 grid-rows-[1fr_auto] items-end justify-items-center px-3">
+                            <div class="w-[300px] h-[300px] m-8 rounded-full" style={background}></div>
                         </div>
                     </div>
+                    <ul class="lg:col-span-1 flex flex-col gap-6">
+                        { for data.iter().enumerate().map(|(index, (label, percent))| html! {
+                            <li class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full" style={format!("background: {};", colors[index % colors.len()])}></div>
+                                <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">
+                                    { format!("{} ({}%)", label.clone(), percent) }
+                                </p>
+                            </li>
+                        })}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+#[function_component]
+fn MonthBreakdown() -> Html {
+    let state = use_context::<State>().expect("no ctx found");
+    let transactions = state.transactions;
+    let monthly_limit = state.monthly_limit;
+
+    let start_of_month = get_start_of_month();
+    let mut months = vec![start_of_month];
+    for i in 1..12 {
+        months.push(start_of_month.checked_sub_months(Months::new(i)).unwrap());
+    }
+    months.reverse();
+
+    let data = months
+        .iter()
+        .enumerate()
+        .map(|(index, month)| {
+            let spent = transactions
+                .iter()
+                .filter(|t| {
+                    t.date >= *month && (index >= months.len() - 1 || t.date < months[index + 1])
+                })
+                .fold(0.0, |acc, t| acc + t.amount);
+            (*month, spent)
+        })
+        .collect::<Vec<_>>();
+    let non_zero_data = data
+        .iter()
+        .filter(|(_, spent)| *spent > 0.0)
+        .collect::<Vec<_>>();
+    let average = non_zero_data
+        .iter()
+        .fold(0.0, |acc, (_, spent)| acc + spent)
+        / non_zero_data.len() as f64;
+    let min = data.iter().fold(
+        0.0,
+        |acc, (_, spent)| {
+            if *spent < acc {
+                *spent
+            } else {
+                acc
+            }
+        },
+    );
+    let max = data.iter().fold(
+        0.0,
+        |acc, (_, spent)| {
+            if *spent > acc {
+                *spent
+            } else {
+                acc
+            }
+        },
+    );
+    let normalized_data = data
+        .iter()
+        .map(|(month, spent)| (*month, (spent - min) / (max - min) * 100.0, *spent))
+        .collect::<Vec<_>>();
+
+    html! {
+        <div class="border border-[#244724] p-4 rounded flex flex-wrap gap-4">
+            <div class="flex min-w-72 flex-1 flex-col gap-2">
+                <p class="text-white text-base font-medium leading-normal">
+                    { "Month Breakdown" }
+                </p>
+                <p class="text-primary tracking-light text-[32px] font-bold leading-tight truncate">
+                    { fmt_amount(average) }
+                </p>
+                <p class="text-[#93c893] text-base font-normal leading-normal">
+                    { "Average Spending" }
+                </p>
+                <div class="grid min-h-[180px] grid-flow-col gap-6 grid-rows-[1fr_auto] items-end justify-items-center px-3">
+                    { for normalized_data.iter().map(|(month, normalized_spent, spent_amount)| html! {
+                        <>
+                            <div
+                                class="w-full flex items-center justify-center"
+                                style={if *spent_amount > monthly_limit {
+                                        let ratio = monthly_limit / *spent_amount;
+                                        format!(
+                                            "min-height: {}%; background: linear-gradient(to top, #244724 {}%, #19e619 {}%);",
+                                            normalized_spent,
+                                            ratio * 100.0,
+                                            ratio * 100.0,
+                                        )
+                                    } else {
+                                        format!( "min-height: {}%; background: #244724;", normalized_spent)
+                                    }
+                                }></div>
+                            <p class="text-[#93c893] text-[13px] font-bold leading-normal tracking-[0.015em]">
+                                { if month.month() == 1 {
+                                    format!("{}", month.year())
+                                } else {
+                                    month.format("%b").to_string()
+                                } }
+                            </p>
+                        </>
+                    })}
                 </div>
             </div>
         </div>

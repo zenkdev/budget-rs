@@ -85,15 +85,17 @@ pub fn parse_csv_file(file: File, on_success: Callback<State>) {
 
                 tracing::info!("record: {:?}", record);
 
-                let date = NaiveDate::parse_from_str(&record[1], "%Y-%m-%d");
+                let date_str = record[1].to_string().chars().take(10).collect::<String>();
+                let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")
+                    .or_else(|_| NaiveDate::parse_from_str(&date_str, "%d.%m.%Y"));
                 if let Err(err) = date {
                     tracing::error!("Error parsing date: {}", err);
                     continue;
                 }
 
                 let id: usize;
-                let category = record[3].to_string();
-                let found = categories.iter().find(|c| c.name == category);
+                let name = record[3].to_string();
+                let found = categories.iter().find(|c| c.name == name);
                 match found {
                     Some(c) => {
                         id = c.id;
@@ -101,9 +103,9 @@ pub fn parse_csv_file(file: File, on_success: Callback<State>) {
                     None => {
                         id = categories.len() + 1;
                         categories.push(Category {
-                            id: id,
-                            name: category,
-                            limit: record[4].parse::<f64>().unwrap(),
+                            id,
+                            name,
+                            limit: record[4].parse::<f64>().unwrap_or(0.0),
                         });
                     }
                 }

@@ -26,7 +26,7 @@ pub fn ManageLimits() -> Html {
             <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                     <div class="flex px-4 py-3 justify-start">
-                        <BackButton />
+                        <HomeLink variant={HomeLinkVariant::Back} />
                     </div>
                     <div class="flex flex-wrap justify-between gap-3 p-4">
                         <div class="flex min-w-72 flex-col gap-3">
@@ -177,7 +177,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                         </thead>
                         <tbody>
                             {for state.categories.iter().map(|category| html! {
-                                <CategoryEdit category={category.clone()} on_edit={on_edit_category.clone()} spent={get_category_spent(category.clone().id, transactions)} />
+                                <CategoryEdit category={category.clone()} on_edit={on_edit_category.clone()} spent={get_category_spent_this_month(category.clone().id, transactions)} />
                             })}
                         </tbody>
                     </table>
@@ -233,12 +233,7 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
         }
     };
 
-    let percent = if category.limit > 0.0 {
-        (spent / category.limit * 100.0) as i32
-    } else {
-        0
-    };
-
+    let percent = get_percent(*spent, category.limit);
     let progress = if percent > 100 {
         10
     } else {
