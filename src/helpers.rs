@@ -78,7 +78,7 @@ pub fn get_category_spent_this_month(cat_id: usize, transactions: &[Transaction]
 
 pub fn get_percent(amount: f64, total: f64) -> i32 {
     if total > 0.0 {
-        (amount / total * 100.0) as i32
+        (amount / total * 100.0).round() as i32
     } else {
         0
     }

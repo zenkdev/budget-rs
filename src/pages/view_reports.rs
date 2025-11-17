@@ -97,20 +97,22 @@ fn SpendingBreakdown() -> Html {
     data.sort_by_key(|(_, percent)| *percent);
 
     let colors = vec![
-        "#EED677", "#AADFFF", "#4EF483", "#65A1C1", "#F66C41", "#7C4EFF", "#A2B062", "#F2A15C",
-        "#C8E2BB", "#C7B2FF",
+        "#FFE16B", "#A7DEFF", "#2BFF6E", "#6CC2F0", "#FF4E17", "#5E26FF", "#C4D86C", "#FF9840",
+        "#EAFFE0", "#C7B2FF",
     ];
+    let mut total_percent = 0;
     let background = data.iter().enumerate().fold(
         "background: conic-gradient(".to_string(),
         |acc, (index, (_, percent))| {
             let color = colors[index % colors.len()];
+            total_percent += *percent;
 
             if index == 0 {
-                format!("{}{} {}%,", acc, color, *percent)
+                format!("{}{} {}%,", acc, color, total_percent)
             } else if index < data.len() - 1 {
-                format!("{}{} 0 {}%,", acc, color, *percent)
+                format!("{}{} 0 {}%,", acc, color, total_percent)
             } else {
-                format!("{}{} 0 {}%);", acc, color, *percent)
+                format!("{}{} 0);", acc, color)
             }
         },
     );
