@@ -249,7 +249,7 @@ pub fn save_to_file(state: State, format: FileFormat) {
         format!(
             "budget_data_{}.{}",
             Local::now().format("%Y%m%d%H%M%S"),
-            format.to_string()
+            format
         )
         .as_str(),
     );
