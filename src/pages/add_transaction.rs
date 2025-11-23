@@ -94,7 +94,7 @@ pub fn AddTransaction() -> Html {
                 <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
                     <div class="flex flex-wrap justify-center gap-3 p-4">
                         <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                            { "[ ADD NEW TRANSACTION ]" }
+                            { "[ NEW TRANSACTION ENTRY ]" }
                         </p>
                     </div>
                     <form class="flex flex-col gap-6 mt-8">

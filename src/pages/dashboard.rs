@@ -19,7 +19,7 @@ pub fn Dashboard() -> Html {
                             </h3>
                             <div class="p-4 flex flex-col sm:flex-row gap-4">
                                 <CommandLink to={Route::AddTransaction}>
-                                    { ">_ ADD NEW TRANSACTION" }
+                                    { ">_ NEW TRANSACTION" }
                                 </CommandLink>
                                 <CommandLink to={Route::ViewReports}                                >
                                     { ">_ VIEW REPORTS" }
