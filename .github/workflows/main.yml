@@ -38,5 +38,12 @@ jobs:
       - name: Add WASM build target
         run: |
           rustup target add wasm32-unknown-unknown
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: Install node_modules
+        run: npm ci
       - name: Run trunk build
         run: RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build --release
