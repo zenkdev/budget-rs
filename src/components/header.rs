@@ -24,7 +24,7 @@ pub fn Header() -> Html {
                     </svg>
                 </div>
                 <h2 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em]">
-                    { "V.B.S. (VAULT BUDGETING SYSTEM) v1.0" }
+                    { format!("V.B.S. (VAULT BUDGETING SYSTEM) v{}", env!("CARGO_PKG_VERSION")) }
                 </h2>
             </div>
             <div class="flex flex-1 sm:justify-end gap-4 sm:gap-8">
