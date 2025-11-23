@@ -32,7 +32,6 @@
   <link data-trunk rel="copy-dir" href="fonts" />
   <link data-trunk rel="copy-dir" href="icons" />
   <link data-trunk rel="copy-file" href="manifest.json" />
-  <link data-trunk rel="copy-file" href="service_worker.js">
   <link data-trunk rel="copy-file" href="favicon.ico">
   <base data-trunk-public-url />
   <style>
@@ -166,12 +165,10 @@
       visibility: visible;
     }
   </style>
-  <script>
-    'use strict';
+  <script type="module">
     window.onload = function () {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-          .register('./service_worker.js');
+        navigator.serviceWorker.register('./sw.js');
       }
     };
   </script>

@@ -30,13 +30,6 @@ jobs:
       - name: Setup Pages
         id: setup_pages
         uses: actions/configure-pages@v5
-        # with:
-          # Automatically inject basePath in your Next.js configuration file and disable
-          # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
-          #
-          # You may remove this line if you want to manage the configuration yourself.
-          # static_site_generator: next
-
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -55,6 +48,13 @@ jobs:
       - name: Add WASM build target
         run: |
           rustup target add wasm32-unknown-unknown
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: Install node_modules
+        run: npm ci
       - name: Run trunk build
         run: RUSTFLAGS='--cfg getrandom_backend="wasm_js"' trunk build --public-url "${{ steps.setup_pages.outputs.base_path }}" --release
       - name: Upload artifact

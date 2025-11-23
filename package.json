@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "concurrently": "9.2.1",
+    "local-ssl-proxy": "2.0.5",
+    "workbox-cli": "7.4.0"
+  },
+  "scripts": {
+    "trunk-dev": "trunk serve",
+    "ssl-proxy": "local-ssl-proxy --source 8443 --target 8000",
+    "dev": "concurrently \"npm run trunk-dev\" \"npm run ssl-proxy\""
+  }
+}

@@ -5,3 +5,12 @@ addresses = ["127.0.0.1"]
 # address = "0.0.0.0"
 # The port to serve on.
 port = 8000
+
+[[hooks]]
+stage = "post_build"                                     # When to run hook, must be one of "pre_build", "build", "post_build"
+command = "./node_modules/.bin/workbox"                  # Command to run
+command_arguments =  ["generateSW", "workbox-config.js"] # Arguments to pass to command
+
+[hooks.windows]
+command = "./node_modules/.bin/workbox.cmd"
+command_arguments =  ["generateSW", "workbox-config.js"]
