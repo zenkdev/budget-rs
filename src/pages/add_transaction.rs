@@ -69,6 +69,7 @@ pub fn AddTransaction() -> Html {
 
     let on_submit = {
         let amount = form.amount;
+        let date = form.date.clone();
         let description = form.description.clone();
         let category = form.category;
         let notes = form.notes.clone();
@@ -76,10 +77,9 @@ pub fn AddTransaction() -> Html {
         let navigator = navigator.clone();
 
         Callback::from(move |_| {
-            let date = Local::now();
             dispatch.emit(Action::AddTransaction(Transaction {
-                date,
                 amount,
+                date,
                 description: description.clone(),
                 category,
                 notes: notes.clone(),
@@ -135,13 +135,12 @@ pub fn AddTransaction() -> Html {
                         <div class="flex flex-col">
                             <label class="text-base font-medium leading-normal pb-2" for="category">{"CATEGORY:"}</label>
                             <select
-                                class="form-select appearance-none w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 p-4 text-base font-normal leading-normal bg-no-repeat bg-right"
+                                class="form-select appearance-none w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 p-4 text-base font-normal leading-normal"
                                 id="category"
                                 name="category"
                                 onchange={on_change_category}
-                                style="background-image: url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2339ff14' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\"); background-position: right 0.5rem center; background-size: 1.5em 1.5em;"
                             >
-                                <option value="0" selected={form.category == 0}>{"Select category..."}</option>
+                                <option value="0" selected={form.category == 0} disabled={true}>{"Select category..."}</option>
                                 {for categories.iter().cloned().map(|category| html!{
                                     <option value={category.id.to_string()} selected={form.category == category.id}>{category.name.clone()}</option>
                                 })}
