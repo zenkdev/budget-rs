@@ -1,7 +1,43 @@
 use crate::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::KeyboardEvent;
 
 #[function_component]
 pub fn Dashboard() -> Html {
+    let navigator = use_navigator().unwrap();
+
+    {
+        let navigator = navigator.clone();
+        use_effect_with((), move |_| {
+            let window = gloo::utils::window();
+            let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |e: KeyboardEvent| {
+                match e.key().as_str() {
+                    "n" | "N" => {
+                        e.prevent_default();
+                        navigator.push(&Route::AddTransaction);
+                    }
+                    "v" | "V" => {
+                        e.prevent_default();
+                        navigator.push(&Route::ViewReports);
+                    }
+                    "m" | "M" => {
+                        e.prevent_default();
+                        navigator.push(&Route::ManageLimits);
+                    }
+                    _ => {}
+                }
+            })
+                as Box<dyn FnMut(KeyboardEvent)>);
+
+            window
+                .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())
+                .unwrap();
+            closure.forget();
+
+            || {}
+        });
+    }
+
     html! {
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
@@ -17,15 +53,16 @@ pub fn Dashboard() -> Html {
                             <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 text-glow">
                                 { "// COMMANDS //" }
                             </h3>
-                            <div class="p-4 flex flex-col sm:flex-row gap-4">
+                            <div class="h-4"></div>
+                            <div class="flex flex-col lg:flex-row gap-4">
                                 <CommandLink to={Route::AddTransaction}>
-                                    { ">_ NEW TRANSACTION" }
+                                    { "> NEW ENTRY [N]" }
                                 </CommandLink>
-                                <CommandLink to={Route::ViewReports}                                >
-                                    { ">_ VIEW REPORTS" }
+                                <CommandLink to={Route::ViewReports}>
+                                    { "> VIEW REPORTS [V]" }
                                 </CommandLink>
                                 <CommandLink to={Route::ManageLimits}>
-                                    { ">_ MANAGE LIMITS" }
+                                    { "> MANAGE LIMITS [M]" }
                                 </CommandLink>
                             </div>
                         </section>

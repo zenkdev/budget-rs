@@ -2,13 +2,23 @@ use crate::prelude::*;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
+use web_sys::{HtmlInputElement, KeyboardEvent};
 
 #[function_component]
 pub fn AddTransaction() -> Html {
     let navigator = use_navigator().unwrap();
-    let on_close = {
+    let close_action = {
         let navigator = navigator.clone();
-        Callback::from(move |_| navigator.push(&Route::Home))
+        Rc::new(move || {
+            navigator.push(&Route::Home);
+        })
+    };
+
+    let on_close = {
+        let close_action = close_action.clone();
+        Callback::from(move |_: MouseEvent| {
+            close_action();
+        })
     };
 
     let state = use_context::<State>().expect("no ctx found");
@@ -16,6 +26,16 @@ pub fn AddTransaction() -> Html {
     let categories = state.categories;
 
     let form = use_reducer(FormState::default);
+
+    let amount_input_ref = use_node_ref();
+    {
+        let amount_input_ref = amount_input_ref.clone();
+        use_effect_with((), move |_| {
+            if let Some(input) = amount_input_ref.cast::<HtmlInputElement>() {
+                let _ = input.focus();
+            }
+        });
+    }
 
     let on_change_amount = {
         let form = form.clone();
@@ -67,24 +87,42 @@ pub fn AddTransaction() -> Html {
         })
     };
 
-    let on_submit = {
-        let amount = form.amount;
-        let date = form.date.clone();
-        let description = form.description.clone();
-        let category = form.category;
-        let notes = form.notes.clone();
+    let submit_action = {
+        let form = form.clone();
         let dispatch = dispatch.clone();
         let navigator = navigator.clone();
+        Rc::new(move || {
+            if form.amount != 0.0 && !form.description.is_empty() && form.category != 0 {
+                dispatch.emit(Action::AddTransaction(Transaction {
+                    amount: form.amount,
+                    date: form.date.clone(),
+                    description: form.description.clone(),
+                    category: form.category,
+                    notes: form.notes.clone(),
+                }));
+                navigator.push(&Route::Home);
+            }
+        })
+    };
 
-        Callback::from(move |_| {
-            dispatch.emit(Action::AddTransaction(Transaction {
-                amount,
-                date,
-                description: description.clone(),
-                category,
-                notes: notes.clone(),
-            }));
-            navigator.push(&Route::Home);
+    let on_submit = {
+        let submit_action = submit_action.clone();
+        Callback::from(move |_: MouseEvent| {
+            submit_action();
+        })
+    };
+
+    let on_keydown = {
+        let submit_action = submit_action.clone();
+        let close_action = close_action.clone();
+        Callback::from(move |e: KeyboardEvent| {
+            if e.ctrl_key() && e.key() == "Enter" {
+                e.prevent_default();
+                submit_action();
+            } else if e.key() == "Escape" {
+                e.prevent_default();
+                close_action();
+            }
         })
     };
 
@@ -97,11 +135,12 @@ pub fn AddTransaction() -> Html {
                             { "[ NEW TRANSACTION ENTRY ]" }
                         </p>
                     </div>
-                    <form class="flex flex-col gap-6 mt-8">
+                    <form class="flex flex-col gap-6 mt-8" onkeydown={on_keydown}>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                             <div class="flex flex-col">
                                 <label class="text-base font-medium leading-normal pb-2" for="amount">{"AMOUNT:"}</label>
                                 <input
+                                    ref={amount_input_ref}
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 placeholder:text-primary/50 p-4 text-base font-normal leading-normal"
                                     id="amount"
                                     name="amount"
@@ -160,7 +199,7 @@ pub fn AddTransaction() -> Html {
                             <Button
                                 class="w-full sm:w-auto"
                                 button_type="submit"
-                                onclick={on_submit}
+                                onclick={on_submit.clone()}
                                 disabled={form.amount == 0.0 || form.description.is_empty() || form.category == 0}
                             >
                                 { "[ SAVE ENTRY ]" }

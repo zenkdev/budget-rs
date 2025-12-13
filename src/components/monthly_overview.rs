@@ -18,7 +18,8 @@ pub fn MonthlyOverview() -> Html {
             <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 text-glow">
                 { "// MONTHLY FINANCIAL OVERVIEW //" }
             </h3>
-            <div class="flex flex-col sm:flex-row flex-wrap gap-4 p-4">
+            <div class="h-4"></div>
+            <div class="flex flex-col sm:flex-row flex-wrap gap-4">
                 <div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded p-6 border border-primary/30">
                     <p class="text-primary/80 text-base font-medium leading-normal">
                         { "Monthly Limit" }

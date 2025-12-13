@@ -1,4 +1,6 @@
 use crate::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::KeyboardEvent;
 
 #[derive(PartialEq)]
 pub enum HomeLinkVariant {
@@ -15,6 +17,27 @@ pub struct HomeLinkProps {
 #[function_component]
 pub fn HomeLink(props: &HomeLinkProps) -> Html {
     let HomeLinkProps { variant } = props;
+    let navigator = use_navigator().unwrap();
+    {
+        let navigator = navigator.clone();
+        use_effect_with((), move |_| {
+            let window = gloo::utils::window();
+            let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |e: KeyboardEvent| {
+                if e.key() == "Escape" {
+                    e.prevent_default();
+                    navigator.push(&Route::Home);
+                }
+            })
+                as Box<dyn FnMut(KeyboardEvent)>);
+
+            window
+                .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())
+                .unwrap();
+            closure.forget();
+
+            || {}
+        });
+    }
 
     html! {
         <Link<Route>
