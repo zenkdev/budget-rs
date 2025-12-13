@@ -95,7 +95,7 @@ pub fn AddTransaction() -> Html {
             if form.amount != 0.0 && !form.description.is_empty() && form.category != 0 {
                 dispatch.emit(Action::AddTransaction(Transaction {
                     amount: form.amount,
-                    date: form.date.clone(),
+                    date: form.date,
                     description: form.description.clone(),
                     category: form.category,
                     notes: form.notes.clone(),
@@ -193,7 +193,7 @@ pub fn AddTransaction() -> Html {
                                 value={form.notes.clone()}
                                 onchange={on_change_notes}
                                 placeholder="Add optional details here..."
-                            ></textarea>
+                            />
                         </div>
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
                             <Button
