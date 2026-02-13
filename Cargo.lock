@@ -1225,9 +1225,9 @@ dependencies = [
 
 [[package]]
 name = "yew-hooks"
-version = "0.4.0"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77b1769730b76cb3c01273fcc23889c1ff992eec807bb31d58ba8ead65b162ef"
+checksum = "3725c1f0a8b66a638fd4d9df4ade3259f4af63f447bc385e95d60ec273cbad32"
 dependencies = [
  "gloo",
  "js-sys",
