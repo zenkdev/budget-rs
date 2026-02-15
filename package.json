@@ -8,5 +8,8 @@
     "trunk-dev": "trunk serve",
     "ssl-proxy": "local-ssl-proxy --source 8443 --target 8000",
     "dev": "concurrently \"npm run trunk-dev\" \"npm run ssl-proxy\""
+  },
+  "devDependencies": {
+    "baseline-browser-mapping": "2.9.19"
   }
 }
