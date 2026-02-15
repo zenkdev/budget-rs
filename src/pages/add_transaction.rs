@@ -37,6 +37,31 @@ pub fn AddTransaction() -> Html {
         });
     }
 
+    let amount_focused = use_state(|| false);
+    let amount_value = if *amount_focused && form.amount == 0.0 {
+        "".to_string()
+    } else {
+        form.amount.to_string()
+    };
+
+    let on_focus_amount = {
+        let focused = amount_focused.clone();
+
+        Callback::from(move |_: FocusEvent| {
+            tracing::info!("on_focus_amount");
+            focused.set(true);
+        })
+    };
+
+    let on_blur_amount = {
+        let focused = amount_focused.clone();
+
+        Callback::from(move |_: FocusEvent| {
+            tracing::info!("on_blur_amount");
+            focused.set(false);
+        })
+    };
+
     let on_change_amount = {
         let form = form.clone();
 
@@ -144,8 +169,10 @@ pub fn AddTransaction() -> Html {
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 placeholder:text-primary/50 p-4 text-base font-normal leading-normal"
                                     id="amount"
                                     name="amount"
-                                    value={fmt_amount(form.amount)}
+                                    value={amount_value}
                                     onchange={on_change_amount}
+                                    onfocus={on_focus_amount}
+                                    onblur={on_blur_amount}
                                 />
                             </div>
                             <div class="flex flex-col">
