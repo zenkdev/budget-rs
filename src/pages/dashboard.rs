@@ -1,5 +1,6 @@
 use crate::prelude::*;
-use wasm_bindgen::JsCast;
+use std::{cell::RefCell, rc::Rc};
+use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::KeyboardEvent;
 
 #[function_component]
@@ -10,31 +11,47 @@ pub fn Dashboard() -> Html {
         let navigator = navigator.clone();
         use_effect_with((), move |_| {
             let window = gloo::utils::window();
-            let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |e: KeyboardEvent| {
-                match e.key().as_str() {
-                    "n" | "N" => {
-                        e.prevent_default();
-                        navigator.push(&Route::AddTransaction);
-                    }
-                    "v" | "V" => {
-                        e.prevent_default();
-                        navigator.push(&Route::ViewReports);
-                    }
-                    "m" | "M" => {
-                        e.prevent_default();
-                        navigator.push(&Route::ManageLimits);
-                    }
-                    _ => {}
+
+            // Wrap closure in Rc<RefCell<Option<>>> so we can reference it in both subscription and cleanup
+            let closure = Rc::new(RefCell::new(None));
+            let closure_clone = closure.clone();
+
+            let callback = Closure::wrap(Box::new(move |e: KeyboardEvent| match e.key().as_str() {
+                "n" | "N" => {
+                    e.prevent_default();
+                    navigator.push(&Route::AddTransaction);
                 }
-            })
-                as Box<dyn FnMut(KeyboardEvent)>);
+                "v" | "V" => {
+                    e.prevent_default();
+                    navigator.push(&Route::ViewReports);
+                }
+                "m" | "M" => {
+                    e.prevent_default();
+                    navigator.push(&Route::ManageLimits);
+                }
+                _ => {}
+            }) as Box<dyn FnMut(KeyboardEvent)>);
 
+            // Save into Rc<RefCell<Option<>>>
+            *closure.borrow_mut() = Some(callback);
+
+            // Get JsValue reference
+            let js_value = closure.borrow().as_ref().unwrap().as_ref().clone();
+
+            tracing::info!("subscribe keydown");
             window
-                .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())
+                .add_event_listener_with_callback("keydown", js_value.unchecked_ref())
                 .unwrap();
-            closure.forget();
 
-            || {}
+            // Cleanup closure on unmount
+            move || {
+                tracing::info!("unsubscribe keydown");
+                if let Some(cb) = closure_clone.borrow_mut().take() {
+                    window
+                        .remove_event_listener_with_callback("keydown", cb.as_ref().unchecked_ref())
+                        .unwrap();
+                }
+            }
         });
     }
 
