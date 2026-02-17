@@ -1219,14 +1219,16 @@ dependencies = [
 
 [[package]]
 name = "yew-hooks"
-version = "0.4.4"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3725c1f0a8b66a638fd4d9df4ade3259f4af63f447bc385e95d60ec273cbad32"
+checksum = "0c26c4c3a4833a35c0f0c1aa3edf7d827a51ea49e70752dda0444aef4c4038a5"
 dependencies = [
  "gloo",
  "js-sys",
  "log",
  "serde",
+ "serde_json",
+ "urlencoding",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
