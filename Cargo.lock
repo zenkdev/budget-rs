@@ -33,7 +33,7 @@ dependencies = [
  "chrono",
  "csv",
  "gloo 0.12.0",
- "gloo-file 0.3.0",
+ "gloo-file 0.4.0",
  "gloo-utils 0.3.0",
  "numfmt",
  "serde",
