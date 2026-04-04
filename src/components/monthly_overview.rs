@@ -6,10 +6,10 @@ pub fn MonthlyOverview() -> Html {
     let transactions = state.transactions;
     let monthly_limit = state.monthly_limit;
 
-    let start_of_month = get_start_of_month();
+    let (start, end) = get_current_period();
     let expendeture = transactions
         .iter()
-        .filter(|t| t.date >= start_of_month)
+        .filter(|t| t.date >= start && t.date < end)
         .fold(0.0, |acc, t| acc + t.amount);
     let funds_remaining = monthly_limit - expendeture;
 

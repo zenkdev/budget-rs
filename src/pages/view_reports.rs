@@ -1,5 +1,5 @@
-use crate::prelude::*;
-use chrono::{Datelike, Months};
+use crate::{helpers::get_expendeture, prelude::*};
+use chrono::Datelike;
 use std::cmp;
 
 #[function_component]
@@ -8,11 +8,7 @@ pub fn ViewReports() -> Html {
     let transactions = state.transactions;
     let monthly_limit = state.monthly_limit;
 
-    let start_of_month = get_start_of_month();
-    let expendeture = transactions
-        .iter()
-        .filter(|t| t.date >= start_of_month)
-        .fold(0.0, |acc, t| acc + t.amount);
+    let expendeture = get_expendeture_this_month(&transactions);
     let percent = get_percent(expendeture, monthly_limit);
 
     html! {
@@ -72,18 +68,10 @@ fn SpendingBreakdown() -> Html {
     let state = use_context::<State>().expect("no ctx found");
     let transactions = state.transactions;
 
-    let start_of_month = get_start_of_month();
-    let expendeture = transactions
-        .iter()
-        .filter(|t| t.date >= start_of_month)
-        .fold(0.0, |acc, t| acc + t.amount);
-
-    let start_of_prev_month = start_of_month.checked_sub_months(Months::new(1)).unwrap();
-    let prev_expendeture = transactions
-        .iter()
-        .filter(|t| t.date >= start_of_prev_month && t.date < start_of_month)
-        .fold(0.0, |acc, t| acc + t.amount);
+    let expendeture = get_expendeture_this_month(&transactions);
+    let prev_expendeture = get_expendeture_prev_month(&transactions);
     let prev_percent = get_percent(expendeture - prev_expendeture, prev_expendeture);
+
     let mut data = state
         .categories
         .iter()
@@ -168,24 +156,19 @@ fn MonthBreakdown() -> Html {
     let transactions = state.transactions;
     let monthly_limit = state.monthly_limit;
 
-    let start_of_month = get_start_of_month();
-    let mut months = vec![start_of_month];
+    let period = get_current_period();
+    let mut months = vec![period];
     for i in 1..12 {
-        months.push(start_of_month.checked_sub_months(Months::new(i)).unwrap());
+        months.push(get_prev_period(months[i - 1]));
     }
     months.reverse();
 
     let data = months
         .iter()
-        .enumerate()
-        .map(|(index, month)| {
-            let spent = transactions
-                .iter()
-                .filter(|t| {
-                    t.date >= *month && (index >= months.len() - 1 || t.date < months[index + 1])
-                })
-                .fold(0.0, |acc, t| acc + t.amount);
-            (*month, spent)
+        .map(|period| {
+            let spent = get_expendeture(period.0, period.1, &transactions);
+
+            (period.0, spent)
         })
         .collect::<Vec<_>>();
     let non_zero_data = data
