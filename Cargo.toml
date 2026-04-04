@@ -1,6 +1,6 @@
 [package]
 name = "budget-rs"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 description = "Template for starting a Yew project using Trunk"
 readme = "README.md"
@@ -11,7 +11,10 @@ categories = ["gui", "wasm", "web-programming"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-yew = { version = "0.22", features = ["csr"] }
+yew = { version = "0.23", features = ["csr"] }
+gloo = "0.11.0" # gloo is a dependency of yew. upgrade with caution.
+yew-hooks = "0.6"
+yew-router = "0.20"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt"] }
 tracing-web = "0.1"
@@ -20,13 +23,8 @@ web-sys = { version = "0.3.82", features = [
     "HtmlDialogElement",
     "HtmlAnchorElement",
 ] }
-gloo = "0.12.0"
 serde = { version = "1.0.228", features = ["derive"] }
 numfmt = "1.2.0"
-yew-router = "0.19.0"
 csv = "1.4.0"
-gloo-file = "0.4.0"
-gloo-utils = "0.3.0"
-yew-hooks = "0.5.0"
 wasm-bindgen = "0.2.108"
 serde_json = "1.0.145"

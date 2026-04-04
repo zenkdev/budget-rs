@@ -38,14 +38,14 @@ pub fn Dashboard() -> Html {
             // Get JsValue reference
             let js_value = closure.borrow().as_ref().unwrap().as_ref().clone();
 
-            tracing::info!("subscribe keydown");
+            tracing::info!("Subscribe keydown");
             window
                 .add_event_listener_with_callback("keydown", js_value.unchecked_ref())
                 .unwrap();
 
             // Cleanup closure on unmount
             move || {
-                tracing::info!("unsubscribe keydown");
+                tracing::info!("Unsubscribe keydown");
                 if let Some(cb) = closure_clone.borrow_mut().take() {
                     window
                         .remove_event_listener_with_callback("keydown", cb.as_ref().unchecked_ref())

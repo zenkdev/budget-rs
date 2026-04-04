@@ -1,7 +1,7 @@
 use chrono::{DateTime, Local};
+use gloo::file::{Blob, ObjectUrl};
 use gloo::storage::{LocalStorage, Storage};
-use gloo_file::{Blob, ObjectUrl};
-use gloo_utils::document;
+use gloo::utils::document;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::rc::Rc;
@@ -175,7 +175,10 @@ const KEY: &str = "@budget-rs/app-state";
 pub fn use_app_state() -> UseReducerHandle<State> {
     let state = use_reducer(|| LocalStorage::get(KEY).unwrap_or_else(|_| State::default()));
 
+    tracing::info!("Transactions loaded: {}", state.transactions.len());
+
     use_effect_with(state.clone(), |state| {
+        tracing::info!("Saving transactions: {}", state.transactions.len());
         LocalStorage::set(
             KEY,
             State {
