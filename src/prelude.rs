@@ -4,6 +4,7 @@ pub use crate::components::{
     footer::Footer,
     header::Header,
     home_link::{HomeLink, HomeLinkVariant},
+    input_amount::InputAmount,
     monthly_overview::MonthlyOverview,
     transaction_logs::TransactionLogs,
 };

@@ -2,7 +2,7 @@ use crate::prelude::*;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
-use web_sys::{HtmlInputElement, KeyboardEvent};
+use web_sys::KeyboardEvent;
 
 #[function_component]
 pub fn AddTransaction() -> Html {
@@ -26,41 +26,6 @@ pub fn AddTransaction() -> Html {
     let categories = state.categories;
 
     let form = use_reducer(FormState::default);
-
-    let amount_input_ref = use_node_ref();
-    {
-        let amount_input_ref = amount_input_ref.clone();
-        use_effect_with((), move |_| {
-            if let Some(input) = amount_input_ref.cast::<HtmlInputElement>() {
-                let _ = input.focus();
-            }
-        });
-    }
-
-    let amount_focused = use_state(|| false);
-    let amount_value = if *amount_focused && form.amount == 0.0 {
-        "".to_string()
-    } else {
-        form.amount.to_string()
-    };
-
-    let on_focus_amount = {
-        let focused = amount_focused.clone();
-
-        Callback::from(move |_: FocusEvent| {
-            tracing::info!("on_focus_amount");
-            focused.set(true);
-        })
-    };
-
-    let on_blur_amount = {
-        let focused = amount_focused.clone();
-
-        Callback::from(move |_: FocusEvent| {
-            tracing::info!("on_blur_amount");
-            focused.set(false);
-        })
-    };
 
     let on_change_amount = {
         let form = form.clone();
@@ -164,15 +129,10 @@ pub fn AddTransaction() -> Html {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                             <div class="flex flex-col">
                                 <label class="text-base font-medium leading-normal pb-2" for="amount">{"AMOUNT:"}</label>
-                                <input
-                                    ref={amount_input_ref}
+                                <InputAmount
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 placeholder:text-primary/50 p-4 text-base font-normal leading-normal"
-                                    id="amount"
-                                    name="amount"
-                                    value={amount_value}
+                                    value={form.amount}
                                     onchange={on_change_amount}
-                                    onfocus={on_focus_amount}
-                                    onblur={on_blur_amount}
                                 />
                             </div>
                             <div class="flex flex-col">

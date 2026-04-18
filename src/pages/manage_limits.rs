@@ -66,7 +66,6 @@ impl Eq for FormState {}
 
 enum FormAction {
     EditCategory((usize, String, f64)),
-    EditMonthlyLimit(f64),
 }
 
 impl Reducible for FormState {
@@ -82,17 +81,16 @@ impl Reducible for FormState {
                     category.name = name;
                     category.limit = limit;
                 }
+                let monthly_limit = categories
+                    .iter()
+                    .fold(0.0, |acc, category| acc + category.limit);
+
                 FormState {
                     categories,
-                    monthly_limit: self.monthly_limit,
+                    monthly_limit,
                 }
                 .into()
             }
-            FormAction::EditMonthlyLimit(monthly_limit) => FormState {
-                categories: self.categories.clone(),
-                monthly_limit,
-            }
-            .into(),
         }
     }
 }
@@ -119,17 +117,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         monthly_limit: *monthly_limit,
     });
 
-    let on_change_monthly_limit = {
-        let state = state.clone();
-
-        Callback::from(move |e: Event| {
-            let value = target_input_value_amount(&e);
-            tracing::info!("on_change_monthly_limit: {}", value);
-            state.dispatch(FormAction::EditMonthlyLimit(value));
-        })
-    };
-
-    let on_edit_category = {
+    let onedit_category = {
         let state = state.clone();
 
         Callback::from(move |value: (usize, String, f64)| {
@@ -157,11 +145,11 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         <form class="flex flex-col gap-8">
             <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
                 <label class="flex flex-col min-w-40 flex-1">
-                    <p class="text-primary text-base font-medium leading-normal pb-2">{"> OVERALL MONTHLY LIMIT:"}</p>
-                    <input
+                    <p class="text-primary text-base font-medium leading-normal pb-2">{"> OVERALL MONTHLY LIMIT: "}</p>
+                    <InputAmount
                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-14 placeholder:text-[#93c893] p-[15px] text-base font-normal leading-normal pr-4"
-                        value={fmt_amount(state.monthly_limit)}
-                        onchange={on_change_monthly_limit}
+                        value={state.monthly_limit}
+                        readonly={true}
                     />
                 </label>
             </div>
@@ -177,7 +165,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                         </thead>
                         <tbody>
                             {for state.categories.iter().map(|category| html! {
-                                <CategoryEdit category={category.clone()} on_edit={on_edit_category.clone()} spent={get_category_spent_this_month(category.clone().id, transactions)} />
+                                <CategoryEdit category={category.clone()} onedit={onedit_category.clone()} spent={get_category_spent_this_month(category.clone().id, transactions)} />
                             })}
                         </tbody>
                     </table>
@@ -209,7 +197,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 #[derive(PartialEq, Properties, Clone)]
 struct CategoryEditProps {
     pub category: Category,
-    pub on_edit: Callback<(usize, String, f64)>,
+    pub onedit: Callback<(usize, String, f64)>,
     pub spent: f64,
 }
 
@@ -217,14 +205,14 @@ struct CategoryEditProps {
 fn CategoryEdit(props: &CategoryEditProps) -> Html {
     let CategoryEditProps {
         category,
-        on_edit,
+        onedit,
         spent,
     } = props;
 
     let id = category.id;
 
-    let on_change = {
-        let edit = on_edit.clone();
+    let onchange = {
+        let edit = onedit.clone();
         let name = category.name.clone();
 
         move |e: Event| {
@@ -244,10 +232,10 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
         <tr class="border-t border-t-[#346534]">
             <td class="h-[72px] px-4 py-2 text-[#93c893] text-sm font-normal leading-normal">{category.name.clone()}</td>
             <td class="h-[72px] px-4 py-2">
-                <input
+                <InputAmount
                     class="form-input w-full min-w-0 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
-                    value={fmt_amount(category.limit)}
-                    onchange={on_change}
+                    value={category.limit}
+                    onchange={onchange}
                 />
             </td>
             <td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
