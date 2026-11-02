@@ -174,7 +174,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 
         Callback::from(move |_| {
             let name = new_name.trim().to_string();
-            if name.is_empty() {
+            if name.is_empty() || *new_limit <= 0.0 {
                 return;
             }
 
@@ -190,7 +190,14 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         let monthly_limit = state.monthly_limit;
         let categories = state.categories.clone();
 
-        Callback::from(move |_| on_submit.emit((monthly_limit, categories.clone())))
+        Callback::from(move |_| {
+            if categories.iter().any(|category| category.limit <= 0.0) {
+                tracing::info!("handle_submit: zero limit found, aborting");
+                return;
+            }
+
+            on_submit.emit((monthly_limit, categories.clone()))
+        })
     };
 
     let handle_reset = {
