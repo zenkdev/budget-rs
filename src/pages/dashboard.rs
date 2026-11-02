@@ -75,7 +75,7 @@ pub fn Dashboard() -> Html {
                                 { "// COMMANDS //" }
                             </h3>
                             <div class="h-4"></div>
-                            <div class="flex flex-col lg:flex-row flex-wrap items-start gap-4">
+                            <div class="flex flex-col lg:flex-row lg:items-start flex-wrap gap-4">
                                 <CommandLink to={Route::AddTransaction}>
                                     { "> NEW ENTRY [N]" }
                                 </CommandLink>
