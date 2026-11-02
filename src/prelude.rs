@@ -18,7 +18,7 @@ pub use crate::helpers::{
 
 pub use crate::pages::{
     add_transaction::AddTransaction, dashboard::Dashboard, data_transfer::DataTransfer,
-    manage_limits::ManageLimits, view_reports::ViewReports,
+    manage_limits::ManageLimits, move_transactions::MoveTransactions, view_reports::ViewReports,
 };
 
 pub use crate::router::{Route, Router};

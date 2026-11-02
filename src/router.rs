@@ -10,6 +10,8 @@ pub enum Route {
     ViewReports,
     #[at("/limits")]
     ManageLimits,
+    #[at("/move")]
+    MoveTransactions,
     #[at("/data")]
     DataTransfer,
     #[not_found]
@@ -23,6 +25,7 @@ fn switch(routes: Route) -> Html {
         Route::AddTransaction => html! { <AddTransaction /> },
         Route::ViewReports => html! { <ViewReports /> },
         Route::ManageLimits => html! { <ManageLimits /> },
+        Route::MoveTransactions => html! { <MoveTransactions /> },
         Route::DataTransfer => html! { <DataTransfer /> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
