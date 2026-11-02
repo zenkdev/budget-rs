@@ -13,12 +13,12 @@ pub fn CategoryAnalysis() -> Html {
             </h3>
             <div class="h-4"></div>
             <div class="p-4 border border-primary/30 rounded flex-1 overflow-x-auto">
-                <table class="w-full table-fixed text-left text-sm">
+                <table class="w-full text-left text-sm">
                     <thead>
                         <tr>
                             <th class="py-2 pr-4 font-medium text-primary/80">{"CATEGORY"}</th>
                             <th class="py-2 pr-4 w-32 text-right font-medium text-primary/80">{"AMOUNT"}</th>
-                            <th class="py-2 w-52"></th>
+                            <th class="py-2 w-16"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -26,9 +26,9 @@ pub fn CategoryAnalysis() -> Html {
                             let spent = get_category_spent_this_month(cat.id, &transactions);
                             html!{
                                 <tr key={cat.id.to_string()}>
-                                    <td class="py-1.5 pr-4 truncate">{ cat.name.clone() }</td>
+                                    <td class="py-1.5 pr-4">{ cat.name.clone() }</td>
                                     <td class="py-1.5 pr-4 text-right">{ fmt_amount(spent) }</td>
-                                    <td class="py-1.5">{ progress_bar(get_percent(spent, cat.limit)) }</td>
+                                    <td class="py-1.5 whitespace-nowrap">{ format!("({})", percent_label(get_percent(spent, cat.limit))) }</td>
                                 </tr>
                             }
                         })}

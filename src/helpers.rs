@@ -149,6 +149,14 @@ pub fn get_percent(amount: f64, total: f64) -> i32 {
     }
 }
 
+pub fn percent_label(percent: i32) -> String {
+    if percent > 999 {
+        "> 999%".to_string()
+    } else {
+        format!("{}%", percent)
+    }
+}
+
 pub fn progress_bar(percent: i32) -> String {
     let filled = if percent > 100 {
         10
@@ -156,16 +164,10 @@ pub fn progress_bar(percent: i32) -> String {
         (percent as f64 / 10.0).ceil() as i32
     } as usize;
 
-    let label = if percent > 999 {
-        "> 999%".to_string()
-    } else {
-        format!("{}%", percent)
-    };
-
     format!(
         "[{}{}] {}",
         pad_right("", filled, '█'),
         pad_right("", 10 - filled, '░'),
-        label
+        percent_label(percent)
     )
 }
