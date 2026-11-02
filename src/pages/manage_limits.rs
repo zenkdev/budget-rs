@@ -69,6 +69,7 @@ enum FormAction {
     EditCategory((usize, String, f64)),
     AddCategory((String, f64)),
     DeleteCategory(usize),
+    Reset((f64, Vec<Category>)),
 }
 
 impl Reducible for FormState {
@@ -128,6 +129,11 @@ impl Reducible for FormState {
                 }
                 .into()
             }
+            FormAction::Reset((monthly_limit, categories)) => FormState {
+                categories,
+                monthly_limit,
+            }
+            .into(),
         }
     }
 }
@@ -234,10 +240,17 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
     };
 
     let handle_reset = {
-        let on_submit = on_submit.clone();
-        let state = State::default();
+        let state = state.clone();
+        let new_name = new_name.clone();
+        let new_limit = new_limit.clone();
+        let monthly_limit = *monthly_limit;
+        let categories = categories.clone();
 
-        Callback::from(move |_| on_submit.emit((state.monthly_limit, state.categories.clone())))
+        Callback::from(move |_| {
+            state.dispatch(FormAction::Reset((monthly_limit, categories.clone())));
+            new_name.set(String::new());
+            new_limit.set(0.0);
+        })
     };
 
     let on_form_submit = Callback::from(move |e: SubmitEvent| {
@@ -328,7 +341,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                         variant={ButtonVariant::Secondary}
                         onclick={handle_reset}>
                         <span class="truncate">
-                            { "[ RESET TO DEFAULTS ]" }
+                            { "[ RESET VALUES ]" }
                         </span>
                     </Button>
                 </div>
