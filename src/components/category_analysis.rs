@@ -18,7 +18,7 @@ pub fn CategoryAnalysis() -> Html {
                         <tr>
                             <th class="py-2 pr-4 font-medium text-primary/80">{"CATEGORY"}</th>
                             <th class="py-2 pr-4 w-32 text-right font-medium text-primary/80">{"AMOUNT"}</th>
-                            <th class="py-2 w-44 font-medium text-primary/80">{"CURRENT SPENT"}</th>
+                            <th class="py-2 w-52"></th>
                         </tr>
                     </thead>
                     <tbody>

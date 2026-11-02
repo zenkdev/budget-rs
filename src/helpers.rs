@@ -156,10 +156,16 @@ pub fn progress_bar(percent: i32) -> String {
         (percent as f64 / 10.0).ceil() as i32
     } as usize;
 
+    let label = if percent > 999 {
+        "> 999%".to_string()
+    } else {
+        format!("{}%", percent)
+    };
+
     format!(
-        "[{}{}] {}%",
+        "[{}{}] {}",
         pad_right("", filled, '█'),
         pad_right("", 10 - filled, '░'),
-        percent
+        label
     )
 }
