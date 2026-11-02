@@ -75,7 +75,7 @@ pub fn Dashboard() -> Html {
                                 { "// COMMANDS //" }
                             </h3>
                             <div class="h-4"></div>
-                            <div class="flex flex-col lg:flex-row gap-4">
+                            <div class="flex flex-col lg:flex-row flex-wrap items-start gap-4">
                                 <CommandLink to={Route::AddTransaction}>
                                     { "> NEW ENTRY [N]" }
                                 </CommandLink>
@@ -86,7 +86,7 @@ pub fn Dashboard() -> Html {
                                     { "> MANAGE LIMITS [M]" }
                                 </CommandLink>
                                 <CommandLink to={Route::MoveTransactions}>
-                                    { "> MOVE TRANSACTIONS [T]" }
+                                    { "> MOVE ENTRIES [T]" }
                                 </CommandLink>
                             </div>
                         </section>
@@ -110,7 +110,7 @@ fn CommandLink(props: &CommandLinkProps) -> Html {
 
     html! {
         <Link<Route>
-            classes="flex-1 text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200"
+            classes="shrink-0 whitespace-nowrap text-left p-4 border border-primary/30 rounded hover:bg-primary/20 hover:text-white transition-colors duration-200"
             to={to.clone()}
         >
             <span class="font-bold">
