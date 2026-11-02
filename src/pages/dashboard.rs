@@ -29,6 +29,10 @@ pub fn Dashboard() -> Html {
                     e.prevent_default();
                     navigator.push(&Route::ManageLimits);
                 }
+                "t" | "T" => {
+                    e.prevent_default();
+                    navigator.push(&Route::MoveTransactions);
+                }
                 _ => {}
             }) as Box<dyn FnMut(KeyboardEvent)>);
 
@@ -80,6 +84,9 @@ pub fn Dashboard() -> Html {
                                 </CommandLink>
                                 <CommandLink to={Route::ManageLimits}>
                                     { "> MANAGE LIMITS [M]" }
+                                </CommandLink>
+                                <CommandLink to={Route::MoveTransactions}>
+                                    { "> MOVE TRANSACTIONS [T]" }
                                 </CommandLink>
                             </div>
                         </section>
