@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
+use web_sys::InputEvent;
 use std::rc::Rc;
 
 #[function_component]
@@ -66,6 +67,7 @@ impl Eq for FormState {}
 
 enum FormAction {
     EditCategory((usize, String, f64)),
+    AddCategory((String, f64)),
 }
 
 impl Reducible for FormState {
@@ -81,6 +83,26 @@ impl Reducible for FormState {
                     category.name = name;
                     category.limit = limit;
                 }
+                let monthly_limit = categories
+                    .iter()
+                    .fold(0.0, |acc, category| acc + category.limit);
+
+                FormState {
+                    categories,
+                    monthly_limit,
+                }
+                .into()
+            }
+            FormAction::AddCategory((name, limit)) => {
+                let mut categories = self.categories.clone();
+                let id = categories
+                    .iter()
+                    .map(|category| category.id)
+                    .max()
+                    .unwrap_or(0)
+                    + 1;
+                categories.push(Category { id, name, limit });
+
                 let monthly_limit = categories
                     .iter()
                     .fold(0.0, |acc, category| acc + category.limit);
@@ -123,6 +145,43 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         Callback::from(move |value: (usize, String, f64)| {
             tracing::info!("on_edit_category: {:?}", value);
             state.dispatch(FormAction::EditCategory(value));
+        })
+    };
+
+    let new_name = use_state(|| String::new());
+    let new_limit = use_state(|| 0.0);
+
+    let on_new_name = {
+        let new_name = new_name.clone();
+
+        Callback::from(move |e: InputEvent| {
+            new_name.set(target_input_value_string(&e));
+        })
+    };
+
+    let on_new_limit = {
+        let new_limit = new_limit.clone();
+
+        Callback::from(move |e: Event| {
+            new_limit.set(target_input_value_amount(&e));
+        })
+    };
+
+    let on_add_category = {
+        let state = state.clone();
+        let new_name = new_name.clone();
+        let new_limit = new_limit.clone();
+
+        Callback::from(move |_| {
+            let name = new_name.trim().to_string();
+            if name.is_empty() {
+                return;
+            }
+
+            tracing::info!("on_add_category: {:?} {}", name, *new_limit);
+            state.dispatch(FormAction::AddCategory((name, *new_limit)));
+            new_name.set(String::new());
+            new_limit.set(0.0);
         })
     };
 
@@ -169,6 +228,32 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                             })}
                         </tbody>
                     </table>
+                </div>
+                <div class="flex flex-wrap items-end gap-4 pt-4">
+                    <label class="flex flex-col min-w-40 flex-1">
+                        <p class="text-primary text-base font-medium leading-normal pb-2">{"> NEW CATEGORY: "}</p>
+                        <input
+                            class="form-input w-full min-w-0 flex-1 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
+                            placeholder="NAME"
+                            value={(*new_name).clone()}
+                            oninput={on_new_name}
+                        />
+                    </label>
+                    <label class="flex flex-col min-w-40 flex-1">
+                        <p class="text-primary text-base font-medium leading-normal pb-2">{"> LIMIT: "}</p>
+                        <InputAmount
+                            class="form-input w-full min-w-0 flex-1 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
+                            value={*new_limit}
+                            onchange={on_new_limit}
+                        />
+                    </label>
+                    <Button
+                        class="min-w-[84px] max-w-[480px] h-12"
+                        onclick={on_add_category}>
+                        <span class="truncate">
+                            { "[ + ADD CATEGORY ]" }
+                        </span>
+                    </Button>
                 </div>
             </div>
             <div class="flex justify-stretch">
