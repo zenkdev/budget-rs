@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use web_sys::InputEvent;
+use web_sys::{InputEvent, SubmitEvent};
 use std::rc::Rc;
 
 #[function_component]
@@ -200,8 +200,12 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         Callback::from(move |_| on_submit.emit((state.monthly_limit, state.categories.clone())))
     };
 
+    let on_form_submit = Callback::from(move |e: SubmitEvent| {
+        e.prevent_default();
+    });
+
     html! {
-        <form class="flex flex-col gap-8">
+        <form class="flex flex-col gap-8" onsubmit={on_form_submit}>
             <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
                 <label class="flex flex-col min-w-40 flex-1">
                     <p class="text-primary text-base font-medium leading-normal pb-2">{"> OVERALL MONTHLY LIMIT: "}</p>
@@ -249,6 +253,7 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                     </label>
                     <Button
                         class="min-w-[84px] max-w-[480px] h-12"
+                        button_type="button"
                         onclick={on_add_category}>
                         <span class="truncate">
                             { "[ + ADD CATEGORY ]" }
