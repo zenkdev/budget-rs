@@ -14,23 +14,28 @@ A budget management web application built with Rust and WebAssembly.
 
 ### Development
 
-Start the development server:
+Before the first run, generate local HTTPS certificates (the `certs/` folder is gitignored and must not be committed).
+
+1. Install [mkcert](https://github.com/FiloSottile/mkcert):
+   - macOS: `brew install mkcert`
+   - Windows: `choco install mkcert` or `winget install FiloSottile.mkcert`
+2. Install the local CA into the system trust store:
+   ```bash
+   mkcert -install
+   ```
+3. Generate certificates for localhost:
+   ```bash
+   mkcert -cert-file certs/cert.pem -key-file certs/key.pem localhost 127.0.0.1
+   ```
+
+Start the development server (HTTPS via Trunk):
 ```bash
 npm run dev
-```
-This runs both the Trunk dev server and SSL proxy concurrently.
-
-Start only the Trunk development server:
-```bash
-npm run trunk-dev
 # or
 trunk serve
 ```
 
-Start only the SSL proxy (for HTTPS on port 8443):
-```bash
-npm run ssl-proxy
-```
+It serves on `https://localhost:8000/`. Paths to the certificates are configured in `Trunk.toml` (`tls_cert_path` / `tls_key_path`).
 
 ### Building
 
