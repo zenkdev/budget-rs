@@ -84,6 +84,7 @@ pub fn AddTransaction() -> Html {
         Rc::new(move || {
             if form.amount != 0.0 && !form.description.is_empty() && form.category != 0 {
                 dispatch.emit(Action::AddTransaction(Transaction {
+                    id: 0,
                     amount: form.amount,
                     date: form.date,
                     description: form.description.clone(),

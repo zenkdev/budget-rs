@@ -41,6 +41,7 @@ pub fn csv_to_state(content: String) -> State {
         }
 
         transactions.push(Transaction {
+            id: 0,
             amount: record[0].parse::<f64>().unwrap(),
             date: DateTime::<Local>::from_naive_utc_and_offset(
                 date.unwrap().into(),

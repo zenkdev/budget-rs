@@ -10,6 +10,8 @@ use yew::prelude::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Transaction {
+    #[serde(default)]
+    pub id: usize,
     pub amount: f64,
     pub date: DateTime<Local>,
     pub description: String,
@@ -43,6 +45,7 @@ impl Default for State {
         Self {
             transactions: vec![
                 Transaction {
+                    id: 1,
                     amount: 45.50,
                     date: now,
                     description: "Super-Duper Mart Rations".to_string(),
@@ -50,6 +53,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 2,
                     amount: 120.00,
                     date: now,
                     description: "Hydroponic Vegetable Seeds".to_string(),
@@ -57,6 +61,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 3,
                     amount: 75.00,
                     date: now,
                     description: "Gas for Power Generator".to_string(),
@@ -64,6 +69,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 4,
                     amount: 30.00,
                     date: now,
                     description: "Red Rocket Fuel".to_string(),
@@ -71,6 +77,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 5,
                     amount: 80.00,
                     date: now,
                     description: "Repair of Shelter Door Lock".to_string(),
@@ -78,6 +85,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 6,
                     amount: 200.00,
                     date: now,
                     description: "Purchase of 10mm Rounds".to_string(),
@@ -85,6 +93,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 7,
                     amount: 60.00,
                     date: now,
                     description: "Medicine and Stimpaks".to_string(),
@@ -92,6 +101,7 @@ impl Default for State {
                     notes: "".to_string(),
                 },
                 Transaction {
+                    id: 8,
                     amount: 150.00,
                     date: now,
                     description: "Water Chip Replacement".to_string(),
@@ -136,8 +146,23 @@ impl Default for State {
     }
 }
 
+fn next_id(transactions: &[Transaction]) -> usize {
+    transactions.iter().map(|t| t.id).max().unwrap_or(0) + 1
+}
+
+pub fn migrate_transaction_ids(state: &mut State) {
+    let mut next = next_id(&state.transactions);
+    for transaction in &mut state.transactions {
+        if transaction.id == 0 {
+            transaction.id = next;
+            next += 1;
+        }
+    }
+}
+
 pub enum Action {
     AddTransaction(Transaction),
+    EditTransaction(usize, Transaction),
     EditLimits((f64, Vec<Category>)),
     Load(State),
 }
@@ -147,9 +172,29 @@ impl Reducible for State {
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
         match action {
-            Action::AddTransaction(transaction) => {
+            Action::AddTransaction(mut transaction) => {
                 let mut transactions = self.transactions.clone();
+                transaction.id = next_id(&transactions);
                 transactions.push(transaction);
+
+                State {
+                    transactions,
+                    categories: self.categories.clone(),
+                    monthly_limit: self.monthly_limit,
+                }
+                .into()
+            }
+            Action::EditTransaction(id, mut transaction) => {
+                let mut transactions = self.transactions.clone();
+                match transactions.iter().position(|t| t.id == id) {
+                    Some(pos) => {
+                        transaction.id = id;
+                        transactions[pos] = transaction;
+                    }
+                    None => {
+                        tracing::error!("EditTransaction: transaction with id {} not found", id);
+                    }
+                }
 
                 State {
                     transactions,
@@ -164,7 +209,10 @@ impl Reducible for State {
                 categories,
             }
             .into(),
-            Action::Load(state) => state.into(),
+            Action::Load(mut state) => {
+                migrate_transaction_ids(&mut state);
+                state.into()
+            }
         }
     }
 }
@@ -173,7 +221,11 @@ const KEY: &str = "@budget-rs/app-state";
 
 #[hook]
 pub fn use_app_state() -> UseReducerHandle<State> {
-    let state = use_reducer(|| LocalStorage::get(KEY).unwrap_or_else(|_| State::default()));
+    let state = use_reducer(|| {
+        let mut state = LocalStorage::get(KEY).unwrap_or_else(|_| State::default());
+        migrate_transaction_ids(&mut state);
+        state
+    });
 
     tracing::info!("Transactions loaded: {}", state.transactions.len());
 
