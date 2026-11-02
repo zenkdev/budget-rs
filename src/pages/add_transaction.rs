@@ -25,7 +25,21 @@ pub fn AddTransaction() -> Html {
     let dispatch = use_context::<DispatchState>().expect("no ctx found");
     let categories = state.categories;
 
-    let form = use_reducer(FormState::default);
+    let edit_transaction = yew_router::hooks::use_location()
+        .and_then(|location| parse_edit_id(location.query_str()))
+        .and_then(|id| state.transactions.iter().find(|t| t.id == id).cloned());
+    let edit_id = edit_transaction.as_ref().map(|t| t.id);
+
+    let form = use_reducer(|| match edit_transaction {
+        Some(t) => FormState {
+            amount: t.amount,
+            date: t.date,
+            description: t.description,
+            category: t.category,
+            notes: t.notes,
+        },
+        None => FormState::default(),
+    });
 
     let on_change_amount = {
         let form = form.clone();
@@ -83,14 +97,18 @@ pub fn AddTransaction() -> Html {
         let navigator = navigator.clone();
         Rc::new(move || {
             if form.amount != 0.0 && !form.description.is_empty() && form.category != 0 {
-                dispatch.emit(Action::AddTransaction(Transaction {
-                    id: 0,
+                let transaction = Transaction {
+                    id: edit_id.unwrap_or(0),
                     amount: form.amount,
                     date: form.date,
                     description: form.description.clone(),
                     category: form.category,
                     notes: form.notes.clone(),
-                }));
+                };
+                match edit_id {
+                    Some(id) => dispatch.emit(Action::EditTransaction(id, transaction)),
+                    None => dispatch.emit(Action::AddTransaction(transaction)),
+                }
                 navigator.push(&Route::Home);
             }
         })
@@ -123,7 +141,7 @@ pub fn AddTransaction() -> Html {
                 <div class="layout-content-container flex w-full max-w-3xl flex-col flex-1">
                     <div class="flex flex-wrap justify-center gap-3 p-4">
                         <p class="text-primary text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                            { "[ NEW TRANSACTION ENTRY ]" }
+                            { if edit_id.is_some() { html! { "[ EDIT TRANSACTION ENTRY ]" } } else { html! { "[ NEW TRANSACTION ENTRY ]" } } }
                         </p>
                     </div>
                     <form class="flex flex-col gap-6 mt-8" onkeydown={on_keydown}>
@@ -190,7 +208,7 @@ pub fn AddTransaction() -> Html {
                                 onclick={on_submit.clone()}
                                 disabled={form.amount == 0.0 || form.description.is_empty() || form.category == 0}
                             >
-                                { "[ SAVE ENTRY ]" }
+                                { if edit_id.is_some() { html! { "[ UPDATE ENTRY ]" } } else { html! { "[ SAVE ENTRY ]" } } }
                             </Button>
                             <Button
                                 class="w-full sm:w-auto"
@@ -206,6 +224,19 @@ pub fn AddTransaction() -> Html {
             </div>
         </div>
     }
+}
+
+fn parse_edit_id(query: &str) -> Option<usize> {
+    query
+        .trim_start_matches('?')
+        .split('&')
+        .find_map(|pair| {
+            let mut parts = pair.split('=');
+            match (parts.next(), parts.next()) {
+                (Some("id"), Some(value)) => value.parse::<usize>().ok(),
+                _ => None,
+            }
+        })
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
