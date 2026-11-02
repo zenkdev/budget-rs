@@ -148,3 +148,18 @@ pub fn get_percent(amount: f64, total: f64) -> i32 {
         0
     }
 }
+
+pub fn progress_bar(percent: i32) -> String {
+    let filled = if percent > 100 {
+        10
+    } else {
+        (percent as f64 / 10.0).ceil() as i32
+    } as usize;
+
+    format!(
+        "[{}{}] {}%",
+        pad_right("", filled, '█'),
+        pad_right("", 10 - filled, '░'),
+        percent
+    )
+}

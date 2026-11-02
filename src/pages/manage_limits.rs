@@ -222,11 +222,6 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
     };
 
     let percent = get_percent(*spent, category.limit);
-    let progress = if percent > 100 {
-        10
-    } else {
-        (percent as f64 / 10.0).ceil() as i32
-    };
 
     html! {
         <tr class="border-t border-t-[#346534]">
@@ -240,7 +235,7 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
             </td>
             <td class="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
                 <p class="text-primary text-sm font-medium leading-normal">
-                    { format!("[{}{}] {}%", pad_right("", progress as usize, '█'), pad_right("", (10 - progress) as usize, '░'), percent) }
+                    { progress_bar(percent) }
                 </p>
             </td>
         </tr>
