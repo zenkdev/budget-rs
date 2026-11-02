@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, InputEvent};
 
 #[derive(PartialEq, Properties)]
 pub struct InputAmountProps {
@@ -61,6 +61,19 @@ pub fn InputAmount(props: &InputAmountProps) -> Html {
         })
     };
 
+    let oninput = {
+        let input_ref = input_ref.clone();
+
+        Callback::from(move |_: InputEvent| {
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                let sanitized = sanitize_amount(&input.value());
+                if input.value() != sanitized {
+                    input.set_value(&sanitized);
+                }
+            }
+        })
+    };
+
     html! {
         <input
             ref={input_ref}
@@ -71,6 +84,7 @@ pub fn InputAmount(props: &InputAmountProps) -> Html {
             onchange={onchange}
             onfocus={onfocus}
             onblur={onblur}
+            oninput={oninput}
             readonly={*readonly}
         />
     }

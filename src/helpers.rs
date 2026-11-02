@@ -25,15 +25,25 @@ pub fn target_input_value_string(e: &Event) -> String {
     input.value()
 }
 
+pub fn sanitize_amount(value: &str) -> String {
+    let mut sanitized = String::with_capacity(value.len());
+    let mut dot_seen = false;
+    for ch in value.chars() {
+        match ch {
+            '0'..='9' => sanitized.push(ch),
+            '.' if !dot_seen => {
+                dot_seen = true;
+                sanitized.push(ch);
+            }
+            _ => {}
+        }
+    }
+    sanitized
+}
+
 pub fn target_input_value_amount(e: &Event) -> f64 {
     let input: HtmlInputElement = e.target_unchecked_into();
-    let raw = input.value().replace("$", "");
-    let normalized = if raw.contains('.') {
-        raw.replace(",", "")
-    } else {
-        raw.replace(",", ".")
-    };
-    normalized.parse::<f64>().unwrap_or(0.0)
+    sanitize_amount(&input.value()).parse::<f64>().unwrap_or(0.0)
 }
 
 pub fn target_input_value_usize(e: &Event) -> usize {
