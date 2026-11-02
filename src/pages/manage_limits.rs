@@ -261,9 +261,9 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                     <table class="flex-1 w-full">
                         <thead>
                             <tr class="bg-[#1a321a]">
-                                <th class="px-4 py-3 text-left text-primary w-[30%] sm:w-[25%] text-sm font-medium leading-normal">{"CATEGORY"}</th>
+                                <th class="px-4 py-3 text-left text-primary w-[40%] sm:w-[35%] text-sm font-medium leading-normal">{"CATEGORY"}</th>
                                 <th class="px-4 py-3 text-left text-primary w-[30%] sm:w-[25%] text-sm font-medium leading-normal">{"LIMIT"}</th>
-                                <th class="px-4 py-3 text-left text-primary w-[40%] sm:w-[50%] text-sm font-medium leading-normal">{"CURRENT SPEND"}</th>
+                                <th class="px-4 py-3 text-left text-primary w-[30%] sm:w-[40%] text-sm font-medium leading-normal">{"CURRENT SPEND"}</th>
                             </tr>
                         </thead>
                         <tbody>
