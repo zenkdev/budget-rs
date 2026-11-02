@@ -11,6 +11,8 @@ pub struct InputAmountProps {
     pub onchange: Callback<Event>,
     #[prop_or_default]
     pub readonly: bool,
+    #[prop_or_default]
+    pub autofocus: bool,
 }
 
 #[function_component]
@@ -20,14 +22,19 @@ pub fn InputAmount(props: &InputAmountProps) -> Html {
         value,
         onchange,
         readonly,
+        autofocus,
     } = props;
 
     let input_ref = use_node_ref();
+    let autofocus = *autofocus;
     {
         let input_ref = input_ref.clone();
+
         use_effect_with((), move |_| {
-            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
-                let _ = input.focus();
+            if autofocus {
+                if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                    let _ = input.focus();
+                }
             }
         });
     }

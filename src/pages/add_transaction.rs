@@ -172,6 +172,7 @@ pub fn AddTransaction() -> Html {
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-none text-primary focus:outline-0 focus:ring-0 border border-primary/30 bg-black/30 focus:border-primary h-14 placeholder:text-primary/50 p-4 text-base font-normal leading-normal"
                                     value={form.amount}
                                     onchange={on_change_amount}
+                                    autofocus={true}
                                 />
                             </div>
                             <div class="flex flex-col">
