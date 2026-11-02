@@ -27,12 +27,13 @@ pub fn target_input_value_string(e: &Event) -> String {
 
 pub fn target_input_value_amount(e: &Event) -> f64 {
     let input: HtmlInputElement = e.target_unchecked_into();
-    input
-        .value()
-        .replace("$", "")
-        .replace(",", "")
-        .parse::<f64>()
-        .unwrap_or(0.0)
+    let raw = input.value().replace("$", "");
+    let normalized = if raw.contains('.') {
+        raw.replace(",", "")
+    } else {
+        raw.replace(",", ".")
+    };
+    normalized.parse::<f64>().unwrap_or(0.0)
 }
 
 pub fn target_input_value_usize(e: &Event) -> usize {
