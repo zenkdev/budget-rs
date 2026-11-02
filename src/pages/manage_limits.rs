@@ -68,6 +68,7 @@ impl Eq for FormState {}
 enum FormAction {
     EditCategory((usize, String, f64)),
     AddCategory((String, f64)),
+    DeleteCategory(usize),
 }
 
 impl Reducible for FormState {
@@ -102,6 +103,20 @@ impl Reducible for FormState {
                     .unwrap_or(0)
                     + 1;
                 categories.push(Category { id, name, limit });
+
+                let monthly_limit = categories
+                    .iter()
+                    .fold(0.0, |acc, category| acc + category.limit);
+
+                FormState {
+                    categories,
+                    monthly_limit,
+                }
+                .into()
+            }
+            FormAction::DeleteCategory(id) => {
+                let mut categories = self.categories.clone();
+                categories.retain(|category| category.id != id);
 
                 let monthly_limit = categories
                     .iter()
@@ -148,6 +163,15 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         })
     };
 
+    let ondelete_category = {
+        let state = state.clone();
+
+        Callback::from(move |id: usize| {
+            tracing::info!("on_delete_category: {}", id);
+            state.dispatch(FormAction::DeleteCategory(id));
+        })
+    };
+
     let new_name = use_state(|| String::new());
     let new_limit = use_state(|| 0.0);
 
@@ -189,10 +213,19 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
         let on_submit = on_submit.clone();
         let monthly_limit = state.monthly_limit;
         let categories = state.categories.clone();
+        let transactions = transactions.clone();
 
         Callback::from(move |_| {
             if categories.iter().any(|category| category.limit <= 0.0) {
                 tracing::info!("handle_submit: zero limit found, aborting");
+                return;
+            }
+
+            if transactions
+                .iter()
+                .any(|transaction| !categories.iter().any(|category| category.id == transaction.category))
+            {
+                tracing::info!("handle_submit: transaction references missing category, aborting");
                 return;
             }
 
@@ -234,8 +267,21 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
                             </tr>
                         </thead>
                         <tbody>
-                            {for state.categories.iter().map(|category| html! {
-                                <CategoryEdit category={category.clone()} onedit={onedit_category.clone()} spent={get_category_spent_this_month(category.clone().id, transactions)} />
+                            {for state.categories.iter().map(|category| {
+                                let count = transactions
+                                    .iter()
+                                    .filter(|transaction| transaction.category == category.id)
+                                    .count();
+
+                                html! {
+                                    <CategoryEdit
+                                        category={category.clone()}
+                                        onedit={onedit_category.clone()}
+                                        ondelete={ondelete_category.clone()}
+                                        spent={get_category_spent_this_month(category.clone().id, transactions)}
+                                        count={count}
+                                    />
+                                }
                             })}
                         </tbody>
                     </table>
@@ -295,7 +341,9 @@ fn ManageLimitsForm(props: &ManageLimitsFormProps) -> Html {
 struct CategoryEditProps {
     pub category: Category,
     pub onedit: Callback<(usize, String, f64)>,
+    pub ondelete: Callback<usize>,
     pub spent: f64,
+    pub count: usize,
 }
 
 #[function_component]
@@ -303,7 +351,9 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
     let CategoryEditProps {
         category,
         onedit,
+        ondelete,
         spent,
+        count,
     } = props;
 
     let id = category.id;
@@ -322,7 +372,18 @@ fn CategoryEdit(props: &CategoryEditProps) -> Html {
 
     html! {
         <tr class="border-t border-t-[#346534]">
-            <td class="h-[72px] px-4 py-2 text-[#93c893] text-sm font-normal leading-normal">{category.name.clone()}</td>
+            <td class="h-[72px] px-4 py-2 text-[#93c893] text-sm font-normal leading-normal">
+                <div class="flex items-center gap-2">
+                    {category.name.clone()}
+                    <button
+                        class="text-primary/60 hover:text-primary text-xs font-bold tracking-wide cursor-pointer transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                        disabled={*count > 0}
+                        onclick={ondelete.reform(move |_| id)}
+                    >
+                        { "[DELETE]" }
+                    </button>
+                </div>
+            </td>
             <td class="h-[72px] px-4 py-2">
                 <InputAmount
                     class="form-input w-full min-w-0 resize-none overflow-hidden text-primary focus:outline-0 focus:ring-0 border border-[#346534] bg-[#1a321a] focus:border-primary h-12 placeholder:text-[#93c893] p-3 text-sm font-normal leading-normal"
