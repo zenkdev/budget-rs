@@ -24,8 +24,8 @@ pub use crate::pages::{
 pub use crate::router::{Route, Router};
 
 pub use crate::state::{
-    parse_file, save_to_file, use_app_state, Action, Category, DispatchState, FileFormat, State,
-    Transaction,
+    latest_category_for_description, parse_file, save_to_file, use_app_state, Action, Category,
+    DispatchState, FileFormat, State, Transaction,
 };
 
 pub use yew::prelude::*;

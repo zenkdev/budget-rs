@@ -2,7 +2,7 @@ use crate::prelude::*;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
-use web_sys::KeyboardEvent;
+use web_sys::{FocusEvent, HtmlInputElement, KeyboardEvent};
 
 #[function_component]
 pub fn AddTransaction() -> Html {
@@ -23,6 +23,7 @@ pub fn AddTransaction() -> Html {
 
     let state = use_context::<State>().expect("no ctx found");
     let dispatch = use_context::<DispatchState>().expect("no ctx found");
+    let state_for_blur = state.clone();
     let categories = state.categories;
 
     let edit_transaction = yew_router::hooks::use_location()
@@ -88,6 +89,25 @@ pub fn AddTransaction() -> Html {
             let value = target_input_value_string(&e);
             tracing::info!("on_change_notes: {}", value);
             form.dispatch(FormAction::Notes(value));
+        })
+    };
+
+    let on_blur_description = {
+        let form = form.clone();
+        let state = state_for_blur;
+
+        Callback::from(move |e: FocusEvent| {
+            if form.category != 0 {
+                return;
+            }
+
+            let input: HtmlInputElement = e.target_unchecked_into();
+            let value = input.value();
+
+            if let Some(category) = latest_category_for_description(&state.transactions, &value) {
+                tracing::info!("on_blur_description: category {} for \"{}\"", category, value);
+                form.dispatch(FormAction::Category(category));
+            }
         })
     };
 
@@ -174,6 +194,7 @@ pub fn AddTransaction() -> Html {
                                 name="description"
                                 value={form.description.clone()}
                                 onchange={on_change_description}
+                                onblur={on_blur_description}
                                 placeholder="Enter expense name..."
                             />
                         </div>

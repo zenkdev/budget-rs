@@ -160,6 +160,19 @@ pub fn migrate_transaction_ids(state: &mut State) {
     }
 }
 
+pub fn latest_category_for_description(transactions: &[Transaction], description: &str) -> Option<usize> {
+    let target = description.trim().to_lowercase();
+    if target.is_empty() {
+        return None;
+    }
+
+    transactions
+        .iter()
+        .filter(|t| t.description.trim().to_lowercase() == target)
+        .max_by_key(|t| t.date)
+        .map(|t| t.category)
+}
+
 pub enum Action {
     AddTransaction(Transaction),
     EditTransaction(usize, Transaction),
