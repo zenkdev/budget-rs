@@ -177,6 +177,7 @@ pub enum Action {
     AddTransaction(Transaction),
     EditTransaction(usize, Transaction),
     EditLimits((f64, Vec<Category>)),
+    MoveCategoryTransactions((usize, usize)),
     Load(State),
 }
 
@@ -222,6 +223,33 @@ impl Reducible for State {
                 categories,
             }
             .into(),
+            Action::MoveCategoryTransactions((from, to)) => {
+                if from == to
+                    || !self.categories.iter().any(|category| category.id == from)
+                    || !self.categories.iter().any(|category| category.id == to)
+                {
+                    tracing::error!(
+                        "MoveCategoryTransactions: invalid move from {} to {}",
+                        from,
+                        to
+                    );
+                    return self;
+                }
+
+                let mut transactions = self.transactions.clone();
+                for transaction in &mut transactions {
+                    if transaction.category == from {
+                        transaction.category = to;
+                    }
+                }
+
+                State {
+                    transactions,
+                    categories: self.categories.clone(),
+                    monthly_limit: self.monthly_limit,
+                }
+                .into()
+            }
             Action::Load(mut state) => {
                 migrate_transaction_ids(&mut state);
                 state.into()
