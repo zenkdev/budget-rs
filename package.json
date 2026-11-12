@@ -6,6 +6,6 @@
     "dev": "trunk serve"
   },
   "devDependencies": {
-    "baseline-browser-mapping": "2.11.34"
+    "baseline-browser-mapping": "2.11.37"
   }
 }
